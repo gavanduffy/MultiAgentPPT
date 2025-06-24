@@ -179,3 +179,6 @@ MultiAgentPPT/
 ## 📎 参考来源
 
 前端项目部分基于开源仓库：[allweonedev/presentation-ai](https://github.com/allweonedev/presentation-ai)
+
+## 作者微信号
+johnsongzc
