@@ -1,4 +1,5 @@
-# 📦 LLM_cache.py 使用说明
+
+# 📦 LLM_cache.py 使用说明和weixin_search.py
 
 `LLM_cache.py` 是一个本地可运行的 **大语言模型中间代理服务器**，支持：
 
@@ -6,6 +7,9 @@
 * 自动缓存返回结果到本地，避免重复请求浪费 token
 * 支持 `stream=True` 的 SSE 流式响应
 * 本地日志记录请求信息及响应内容
+
+
+`weixin_search.py`是搜索微信公众号文章，可以作为模型的MCP工具使用。
 
 ---
 
