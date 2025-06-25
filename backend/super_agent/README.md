@@ -23,6 +23,10 @@ flowchart TD
     style H fill:#e8f5e9,stroke:#43a047,stroke-width:2px
 ```
 
+# 缺点和现状
+任务委派给某个子Agent，但是不能动态串联2个子Agent一起做某个任务。可能planner能实现，但是每个子Agent的状态怎么返回出来？
+如果使用谷歌的ADK的Agent的Tool支持流式的返回吗？即把Agent作为tool呢？
+A2A官方对多Agent的使用，把每个Agent作为工具使用。
 
 # 启动SuperAgent
 python main_api.py
@@ -146,7 +150,4 @@ stream event => {"contextId":"558c1bc23ac84959b997c1307607aa7b","final":true,"ki
 
 What do you want to send to the agent? (:q or quit to exit): 
 ```
-
-
-# 问题，谷歌的ADK的Agent的Tool支持流式的返回吗？
 
