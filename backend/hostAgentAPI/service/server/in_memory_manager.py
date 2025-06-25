@@ -16,7 +16,7 @@ from a2a.types import (
 )
 from utils.agent_card import get_agent_card
 
-import test_image
+from . import test_image
 from .application_manager import ApplicationManager
 from ..types import Conversation, Event
 
