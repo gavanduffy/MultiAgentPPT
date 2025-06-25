@@ -117,7 +117,7 @@ MultiAgentPPT/
 
 ## 🧱 前端数据库设置
 
-如需使用完整的数据库功能（如用户管理），请执行以下步骤：
+数据库存储用户生成的PPT：
 
 1. 使用 Docker 启动 PostgreSQL：
 
@@ -132,7 +132,7 @@ MultiAgentPPT/
    pnpm db:push
    ```
 
-3. 插入默认用户（如果前端报错无用户，请检查insert_oneUser.sql)
+3. 插入默认用户（如果前端报错无用户，请尝试手动插入一条用户数据：frontend/insert_one_user.sql)
 
 4. `.env` 示例配置：
 
