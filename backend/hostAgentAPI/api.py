@@ -1,8 +1,10 @@
 import logging
 import httpx
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, APIRouter, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from service.server.server import ConversationServer
+from fastapi.middleware.wsgi import WSGIMiddleware
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,16 +17,6 @@ logging.basicConfig(
         logging.FileHandler(logfile, mode='w', encoding='utf-8'),
         logging.StreamHandler()
     ]
-)
-app = FastAPI()
-
-# Enable CORS for frontend React app
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 
 
@@ -48,6 +40,36 @@ class HTTPXClientWrapper:
         assert self.async_client is not None
         return self.async_client
 
+httpx_client_wrapper = HTTPXClientWrapper()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    httpx_client_wrapper.start()
+    agent_server = ConversationServer(app, httpx_client_wrapper())
+    app.openapi_schema = None
+    app.mount(
+        '/',
+        WSGIMiddleware(
+            me.create_wsgi_app(
+                debug_mode=os.environ.get('DEBUG_MODE', '') == 'true'
+            )
+        ),
+    )
+    app.setup()
+    yield
+    await httpx_client_wrapper.stop()
+# 添加 ping 路由
+
+app = FastAPI(lifespan=lifespan)
+
+# Enable CORS for frontend React app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.middleware("http")
 async def log_request_body(request: Request, call_next):
     if request.method == "POST":
@@ -57,16 +79,10 @@ async def log_request_body(request: Request, call_next):
         logging.info(f"Request to {request.url.path}")
     response = await call_next(request)
     return response
-
-httpx_client_wrapper = HTTPXClientWrapper(httpx_client_wrapper())
-router = APIRouter()
-agent_server = ConversationServer(router)
-
-# 添加 ping 路由
 @app.api_route("/ping", methods=["GET", "POST"])
 async def ping():
     return "Pong"
-app.include_router(router)
+
 
 # 启动服务
 if __name__ == "__main__":
