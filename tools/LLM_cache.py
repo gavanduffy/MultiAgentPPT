@@ -57,20 +57,27 @@ logger = AppLogger("llm.log")
 provider2url = {
     "openrouter": "https://openrouter.ai/api/v1/chat/completions",
     "qwen-turbo-latest": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+    "qwq-plus-latest": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
     "gpt-4.1": "https://api.openai.com/v1/chat/completions",
+    "gpt-4.1-nano-2025-04-14": "https://api.openai.com/v1/chat/completions",
     "deepseek-chat": "https://api.deepseek.com/v1/chat/completions"
 }
 
-def check_cache_for_errors():
+def check_cache_for_errors(delete_error_files=True):
     print(f"检查缓存文件中是否存在错误内容...， 日志记录到llm.log和{CACHE_DIR}中")
     for filename in os.listdir(CACHE_DIR):
         if filename.endswith(".txt"):
             file_path = os.path.join(CACHE_DIR, filename)
             try:
+                find_errors = False
                 with open(file_path, 'r', encoding='utf-8') as f:
                     content = f.read()
                     if "error" in content.lower():
-                        print(f"⚠️  警告：缓存文件 {filename} 中包含 'error'，请手动删除失败的文件")
+                        print(f"⚠️  警告：缓存文件 {filename} 中包含 'error'，这会影响LLM")
+                        find_errors = True
+                if find_errors and delete_error_files:
+                    os.remove(file_path)
+                    print(f"已删除错误文件：{file_path}")
             except Exception as e:
                 print(f"读取缓存文件 {filename} 失败：{e}")
 
