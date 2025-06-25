@@ -6,3 +6,4 @@ litellm
 python-dotenv
 fastmcp==2.2.5
 asyncclick
+pytest

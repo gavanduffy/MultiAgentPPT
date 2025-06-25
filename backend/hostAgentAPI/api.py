@@ -46,14 +46,6 @@ async def lifespan(app: FastAPI):
     httpx_client_wrapper.start()
     agent_server = ConversationServer(app, httpx_client_wrapper())
     app.openapi_schema = None
-    app.mount(
-        '/',
-        WSGIMiddleware(
-            me.create_wsgi_app(
-                debug_mode=os.environ.get('DEBUG_MODE', '') == 'true'
-            )
-        ),
-    )
     app.setup()
     yield
     await httpx_client_wrapper.stop()
