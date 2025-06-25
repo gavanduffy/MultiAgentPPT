@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from a2a.types import AgentCard, Message, Task
 
-from service.types import Conversation, Event
+from ..types import Conversation, Event
 
 
 class ApplicationManager(ABC):

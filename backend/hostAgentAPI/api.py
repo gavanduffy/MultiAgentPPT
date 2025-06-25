@@ -1,7 +1,7 @@
 import logging
 from fastapi import FastAPI, APIRouter, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
-from server import ConversationServer
+from service.server.server import ConversationServer
 from dotenv import load_dotenv
 
 load_dotenv()
