@@ -172,7 +172,8 @@ class ADKHostManager(ApplicationManager):
             'context_id': context_id,
             'message_id': message.messageId,
         }
-        #这里等待模型的返回，如果配置模型有问题，这里会卡住
+        # Need to upsert session state now, only way is to append an event.
+        print(f"发送event事件前")
         await self._session_service.append_event(
             session,
             ADKEvent(
@@ -182,6 +183,7 @@ class ADKHostManager(ApplicationManager):
                 actions=ADKEventActions(state_delta=state_update),
             ),
         )
+        print(f"发送event事件后")
         async for event in self._host_runner.run_async(
             user_id=self.user_id,
             session_id=context_id,

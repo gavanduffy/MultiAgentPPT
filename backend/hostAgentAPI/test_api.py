@@ -106,6 +106,7 @@ class ConversationServerTestCase(unittest.TestCase):
     def test_send_message(self):
         """
         测试 /message/send 接口, 调用adk_host_manager.py的函数process_message
+        contextId就是conversation_id，代替了以前放到metatadata中"conversation_id": self.created_conversation_id
         返回结果类似：
         {
           "jsonrpc": "2.0",
@@ -129,7 +130,8 @@ class ConversationServerTestCase(unittest.TestCase):
                 "role": "user",
                 "parts": [{"type": "text", "text": text}],
                 "messageId": uuid.uuid4().hex,
-                "metadata": {"conversation_id": self.created_conversation_id}
+                "contextId": self.created_conversation_id,
+                # "metadata": {"conversation_id": self.created_conversation_id}
             }
         }
         start_time = time.time()
@@ -291,7 +293,8 @@ class ConversationServerTestCase(unittest.TestCase):
                 "role": "user",
                 "parts": [{"type": "text", "text": "你好"}],
                 "messageId": uuid.uuid4().hex,
-                "metadata": {"conversation_id": self.created_conversation_id}
+                "contextId": self.created_conversation_id,
+                # "metadata": {"conversation_id": self.created_conversation_id}
             }
         }
         response = requests.post(url_send, headers=headers, json=message_payload)
