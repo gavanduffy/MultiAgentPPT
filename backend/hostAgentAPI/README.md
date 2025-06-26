@@ -56,6 +56,9 @@ graph TD
   F --> |消息附带conversation_id| D
 ```
 
+## 代码解释
+server.py里面定义了每个API的行为，修改API代码或者添加新的API的话，可以在其中操作。
+
 **API 接口测试：**
 
 项目提供了一个 `test_api.py` 脚本用于测试各个 API 接口的功能是否正常。
