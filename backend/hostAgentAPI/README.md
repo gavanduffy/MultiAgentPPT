@@ -74,6 +74,11 @@ AttributeError: 'NoneType' object has no attribute 'call_exception_handler'
 RuntimeWarning: Enable tracemalloc to get the object allocation traceback
 ```
 
+## 注册的Agent都是作为被工具调用的参数，Host Agent有2个工具，1个时查询子Agent，另一个是发送消息给子Agent
+self.list_remote_agents,
+self.send_message,
+
+
 **API 接口测试：**
 
 项目提供了一个 `test_api.py` 脚本用于测试各个 API 接口的功能是否正常。
