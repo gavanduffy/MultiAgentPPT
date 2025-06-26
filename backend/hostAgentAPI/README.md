@@ -58,6 +58,7 @@ graph TD
 
 ## 代码解释
 server.py里面定义了每个API的行为，修改API代码或者添加新的API的话，可以在其中操作。
+例如/events/query就是新增的，在types.py里面定义返回消息的格式，在server.py中定义接口行为。
 
 **API 接口测试：**
 
@@ -95,7 +96,7 @@ server.py里面定义了每个API的行为，修改API代码或者添加新的AP
 | `/message/send`        | 向某个会话发送消息，绑定 `conversation_id`  |
 | `/message/pending`     | 查询哪些消息还在处理中（Pending状态）          |
 | `/events/get`          | 获取所有事件（消息发送、回复等）                |
-| `/events/query`        | 查询某个 conversation\_id 对应的事件     |
+| `/events/query`        | 查询某个 conversation_id 对应的事件     |
 | `/message/list`        | 获取指定会话的所有消息                     |
 | `/task/list`           | 查看当前所有调度任务                      |
 | `/api_key/update`      | 更新当前系统使用的 API Key               |

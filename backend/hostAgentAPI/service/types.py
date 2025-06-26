@@ -151,3 +151,8 @@ class AgentClientJSONError(AgentClientError):
     def __init__(self, message: str):
         self.message = message
         super().__init__(f'JSON Error: {message}')
+
+
+#自定义的类型
+class QueryEventResponse(JSONRPCResponse):
+    result: list[Event] | None = None

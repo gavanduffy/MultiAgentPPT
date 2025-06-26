@@ -22,12 +22,12 @@ from ..types import (
     PendingMessageResponse,
     RegisterAgentResponse,
     SendMessageResponse,
+    QueryEventResponse
 )
 
 from .adk_host_manager import ADKHostManager, get_message_id
 from .application_manager import ApplicationManager
 from .in_memory_manager import InMemoryFakeAgentManager
-
 
 class ConversationServer:
     """ConversationServer is the backend to serve the agent interactions in the UI
@@ -82,6 +82,19 @@ class ConversationServer:
         app.add_api_route(
             '/api_key/update', self._update_api_key, methods=['POST']
         )
+        # 新增
+        app.add_api_route("/events/query",self._query_events,methods=["POST"])
+
+    # 新增
+    async def _query_events(self, request: Request):
+        data = await request.json()
+        conversation_id = data['params'].get("conversation_id")
+        # 过滤出属于该 conversation_id 的事件
+        events = [
+            event for event in self.manager.events
+            if getattr(event.content, "contextId", None) == conversation_id
+        ]
+        return QueryEventResponse(result=events)
 
     # Update API key in manager
     def update_api_key(self, api_key: str):

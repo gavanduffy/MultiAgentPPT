@@ -227,7 +227,7 @@ class ConversationServerTestCase(unittest.TestCase):
         测试查询事件的接口
         """
         # 可以先调用test_send_message创建1个conversation
-        conversation_id = "12daaca7-afe0-425d-a2da-032a63407109"
+        conversation_id = "c0e84114-dfeb-46d5-835b-f5ee4cda820e"
         url = f"{self.base_url}/events/query"
         headers = {'Content-Type': 'application/json'}
         message_payload = {
