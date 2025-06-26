@@ -1,204 +1,98 @@
-# Host Agent API
-📘 [中文Readme](./README_ZH.md)
+# Host Agent API 接口
 
-The coordinator and organizer Agent startup interface for A2A.
+**项目简介：**
 
-# Getting Started
+本项目的目标是为 A2A的协调者和组织者的 Agent 提供启动和管理功能的 API 接口。通过这些接口，可以方便地和其它Agent进行交互，从而实现对其它Agent控制。
 
-**Project Overview:**
 
-The goal of this project is to provide API interfaces for the coordinator and organizer agents of A2A to enable startup and management functionalities. Through these interfaces, seamless interaction with other agents can be achieved, thereby facilitating control over other agents.
-**Quick Start:**
+**快速开始：**
 
-1.  **Environment Setup:**
-    * Ensure you have Python 3 installed on your system.
-    * (If the project has dependencies) Install the required packages using pip:
+1.  **环境准备：**
+    * 确保你的系统已经安装了 Python 3。
+    * （如果项目有依赖）使用 pip 安装所需的依赖包：
         ```bash
         pip install -r requirements.txt
         ```
-        *Note: Execute this step if your project has a `requirements.txt` file. Otherwise, you can skip it.*
+2. **配置模型：**
+    * cp env_template.txt 为 .env 
+    * 修改/hostAgentAPI/hosts/multiagent/host_agent.py中的模型，
+    * model=LiteLlm(model="deepseek/deepseek-chat", api_key="xxx", api_base="")
 
-2.  **Start the API Service:**
-    * Navigate to the project's root directory and run the following command to start the API service:
+
+3. **启动 API 服务：**
+    * 在项目根目录下，运行以下命令启动 API 服务：
         ```bash
         python api.py
         ```
-    * By default, the API service might start on a local address and port (e.g., `http://localhost:13000`). 
+    * 默认情况下，API 服务可能会在本地的某个端口（例如 `http://localhost:13000`）启动。
 
-**API Interface Testing:**
+## 请求流程图
+```mermaid
+graph TD
+  A[Start] --> B[Agent 注册 /agent/register]
+  B --> C[Agent 列表 /agent/list]
 
-The project includes a `test_api.py` script to test the functionality of each API endpoint. This script utilizes the `unittest` framework to send requests to each endpoint and verify the responses.
+  C --> D[创建会话 /conversation/create]
+  D --> E[会话列表 /conversation/list]
 
-1.  **Run the Test Script:**
-    * Ensure the API service is running successfully (see the "Start the API Service" step above).
-    * In the project's root directory, execute the test script:
+  E --> F[发送消息 /message/send]
+  F --> G[消息进入Pending队列 /message/pending]
+  G --> H[调用Agent处理消息]
+
+  H --> I[生成事件 /events/get]
+  I --> J[查询事件 /events/query]
+
+  J --> K[查询消息列表 /message/list]
+  K --> L[任务列表 /task/list]
+
+  L --> M[更新 API Key /api_key/update]
+  M --> N[End]
+
+  %% 辅助测试组合流
+  F --> G2[轮询Pending状态]
+  G2 --> I
+
+  %% 单独组合
+  F --> |消息附带conversation_id| D
+```
+
+**API 接口测试：**
+
+项目提供了一个 `test_api.py` 脚本用于测试各个 API 接口的功能是否正常。
+
+1.  **运行测试脚本：**
+    * 确保 API 服务已经成功启动（见上面的“启动”步骤）。
+    * 在项目根目录下，运行测试脚本：
         ```bash
         python test_api.py
         ```
-    * The test script will automatically run all test cases and output the test results for each endpoint, including status codes, response content, and execution time, helping you verify the API's usability.
+    * 测试脚本将会输出每个接口的测试结果，帮助你验证 API 的可用性。
 
-**API Endpoint Documentation:**
 
-The following are the API endpoints and their functionalities, analyzed from the `test_api.py` file:
+**API 接口测试：**
 
-* **`/ping` (GET)**
-    * **Functionality:** Tests if the API service is running and healthy.
-    * **Request Example:** `GET http://127.0.0.1:13000/ping`
-    * **Response Example:** `"Pong"`
+项目提供了一个 `test_api.py` 脚本用于测试各个 API 接口的功能是否正常。该脚本使用了 `unittest` 框架，对每个接口发送请求并验证响应。
 
-* **`/conversation/create` (POST)**
-    * **Functionality:** Creates a new conversation.
-    * **Request Body:** None
-    * **Response Example:**
-        ```json
-        {
-          "result": {
-            "conversation_id": "unique_conversation_id_generated"
-          }
-        }
+1.  **运行测试脚本：**
+    * 确保 API 服务已经成功启动（见上面的“启动”步骤）。
+    * 在项目根目录下，运行测试脚本：
+        ```bash
+        python test_api.py
         ```
+    * 测试脚本将会自动执行所有测试用例，并输出每个接口的测试结果，包括状态码、响应内容和耗时等信息，帮助你验证 API 的可用性。
 
-* **`/conversation/list` (POST)**
-    * **Functionality:** Lists all current conversations.
-    * **Request Body:** None
-    * **Response Example:**
-        ```json
-        {
-          "result": [
-            "conversation_id_1",
-            "conversation_id_2",
-            ...
-          ]
-        }
-        ```
 
-* **`/message/send` (POST)**
-    * **Functionality:** Sends a message to a specified conversation.
-    * **Request Body (application/json):**
-        ```json
-        {
-          "params": {
-            "role": "user",
-            "parts": [{"type": "text", "text": "Message content to send"}],
-            "metadata": {"conversation_id": "target_conversation_id"}
-          }
-        }
-        ```
-    * **Response Example:**
-        ```json
-        {
-          "result": {
-            "message_id": "generated_message_id",
-            "conversation_id": "corresponding_conversation_id"
-          }
-        }
-        ```
-
-* **`/message/list` (POST)**
-    * **Functionality:** Lists all messages within a specified conversation.
-    * **Request Body (application/json):**
-        ```json
-        {
-          "params": "target_conversation_id"
-        }
-        ```
-    * **Response Example:**
-        ```json
-        {
-          "result": [
-            {
-              "metadata": {"message_id": "message_id_1", ...},
-              "role": "user",
-              "parts": [{"type": "text", "text": "message_content_1"}]
-            },
-            {
-              "metadata": {"message_id": "message_id_2", ...},
-              "role": "assistant",
-              "parts": [{"type": "text", "text": "reply_content_1"}]
-            },
-            ...
-          ]
-        }
-        ```
-
-* **`/message/pending` (POST)**
-    * **Functionality:** Retrieves messages that are currently being processed (pending).
-    * **Request Body:** None
-    * **Response Example:**
-        ```json
-        {
-          "result": [
-            ["conversation_id_1", "message_id_1"],
-            ["conversation_id_2", "message_id_2"],
-            ...
-          ]
-        }
-        ```
-        *Note: An empty `result` array indicates that there are no messages currently pending.*
-
-* **`/events/get` (POST)**
-    * **Functionality:** Retrieves a list of events that have occurred (e.g., new message events).
-    * **Request Body:** None
-    * **Response Example:**
-        ```json
-        {
-          "result": [
-            {"event_type": "new_message", "data": {...}},
-            ...
-          ]
-        }
-        ```
-        *Note: The `result` may contain event information when new questions or interactions occur.*
-
-* **`/task/list` (POST)**
-    * **Functionality:** Lists the current tasks.
-    * **Request Body:** None
-    * **Response Example:**
-        ```json
-        {
-          "result": [
-            {"task_id": "task_id_1", "status": "running", ...},
-            ...
-          ]
-        }
-        ```
-
-* **`/agent/register` (POST)**
-    * **Functionality:** Registers a new Agent.
-    * **Request Body (application/json):**
-        ```json
-        {
-          "params": "URL address of the Agent (e.g., 127.0.0.1:10003)"
-        }
-        ```
-    * **Response Example:**
-        ```json
-        {
-          "result": "registration_result_information"
-        }
-        ```
-
-* **`/agent/list` (POST)**
-    * **Functionality:** Lists all registered Agents.
-    * **Request Body:** None
-    * **Response Example:**
-        ```json
-        {
-          "result": ["agent_url_1", "agent_url_2", ...]
-        }
-        ```
-
-* **`/api_key/update` (POST)**
-    * **Functionality:** Updates the API Key.
-    * **Request Body (application/json):**
-        ```json
-        {
-          "api_key": "new_api_key"
-        }
-        ```
-    * **Response Example:**
-        ```json
-        {
-          "status": "success"
-        }
-        ```
+**API 端点说明：**
+| 流程步骤                   | 说明                              |
+| ---------------------- | ------------------------------- |
+| `/agent/register`      | 注册一个 Agent（例如某个模型服务）            |
+| `/agent/list`          | 查看当前注册的 Agent                   |
+| `/conversation/create` | 创建一个上下文会话（返回 `conversation_id`） |
+| `/conversation/list`   | 列出所有创建过的会话                      |
+| `/message/send`        | 向某个会话发送消息，绑定 `conversation_id`  |
+| `/message/pending`     | 查询哪些消息还在处理中（Pending状态）          |
+| `/events/get`          | 获取所有事件（消息发送、回复等）                |
+| `/events/query`        | 查询某个 conversation\_id 对应的事件     |
+| `/message/list`        | 获取指定会话的所有消息                     |
+| `/task/list`           | 查看当前所有调度任务                      |
+| `/api_key/update`      | 更新当前系统使用的 API Key               |
