@@ -75,7 +75,8 @@ class ConversationServerTestCase(unittest.TestCase):
         """
         url = f"{self.base_url}/conversation/create"
         start_time = time.time()
-        response = requests.post(url)
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, headers=headers, json={})
         self.assertEqual(response.status_code, 200, f"/conversation/create 接口状态码应为 200，但实际为 {response.status_code}")
         self.assertEqual(response.headers.get('Content-Type'), 'application/json', f"/conversation/create 接口 Content-Type 应为 application/json，但实际为 {response.headers.get('Content-Type')}")
         res = response.json()
@@ -228,7 +229,7 @@ class ConversationServerTestCase(unittest.TestCase):
         测试查询事件的接口
         """
         # 可以先调用test_send_message创建1个conversation
-        conversation_id = "d11e4c53-12b1-4f22-b9d3-8fdc5ed98fc7"
+        conversation_id = "94b16c91b4ed43e6a965698aeb1e0a66"
         url = f"{self.base_url}/events/query"
         headers = {'Content-Type': 'application/json'}
         message_payload = {
