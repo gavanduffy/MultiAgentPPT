@@ -173,7 +173,7 @@ class ADKHostManager(ApplicationManager):
             'message_id': message.messageId,
         }
         # Need to upsert session state now, only way is to append an event.
-        print(f"发送event事件前")
+        print(f"adk_host_manager: 发送event事件前")
         await self._session_service.append_event(
             session,
             ADKEvent(
@@ -183,7 +183,7 @@ class ADKHostManager(ApplicationManager):
                 actions=ADKEventActions(state_delta=state_update),
             ),
         )
-        print(f"发送event事件后")
+        print(f"adk_host_manager:发送event事件后")
         async for event in self._host_runner.run_async(
             user_id=self.user_id,
             session_id=context_id,
