@@ -1,4 +1,4 @@
-# MultiAgentPPT：简单示例用于生成PPT正文
+# MultiAgentPPT：简单示例用于生成文档
 
 本项目结合了 **A2A 框架** 与 **Google ADK 架构**，通过 SSE（Server-Sent Events）生成结构化的 XML 格式 PPT 内容示例，这个用于测试。
 

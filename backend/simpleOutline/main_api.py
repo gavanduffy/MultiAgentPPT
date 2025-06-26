@@ -46,7 +46,8 @@ def main(host, port):
 
     agent_card_name = "outline Agent"
     agent_name = "outline_agent"
-    agent_description = "outline Agent"
+    # Agent描述必须清晰
+    agent_description = "Generate an outline based on the user's requirements"
 
     # 定义 agent 的技能
     skill = AgentSkill(

@@ -40,7 +40,7 @@ def main(host, port):
     streaming = os.environ.get("STREAMING") == "true"
     agent_card_name = "ppt Agent"
     agent_name = "ppt_agent"
-    agent_description = "generate ppt Agent"
+    agent_description = "Generate the PPT content based on the provided outline. The outline must be provided in order to proceed."
 
     # 定义Agent技能
     skill = AgentSkill(

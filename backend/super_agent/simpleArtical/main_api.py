@@ -38,17 +38,17 @@ def main(host, port):
     启动ppt Agent服务，支持流式和非流式输出。
     """
     streaming = os.environ.get("STREAMING") == "true"
-    agent_card_name = "ppt Agent"
-    agent_name = "ppt_agent"
-    agent_description = "generate ppt Agent"
+    agent_card_name = "Artical Agent"
+    agent_name = "artical_agent"
+    agent_description = "Write the artical content based on the provided outline. The outline must be provided in order to proceed."
 
     # 定义Agent技能
     skill = AgentSkill(
         id=agent_name,
         name=agent_card_name,
         description=agent_description,
-        tags=["ppt"],
-        examples=["ppt"],
+        tags=["artical"],
+        examples=["artical"],
     )
 
     # 构建Agent卡片信息

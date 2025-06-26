@@ -10,3 +10,6 @@ slide_agent   #标准多智能体系统，根据大纲生成ppt，更专业
 # 开发中（待完善)
 super_agent   # 文字版本的多智能体系统，用于串联多个Agent，纯文本的输入，输出，控制大纲和PPT生成
 hostAgentAPI  # 纯A2A的API的版本的总Agent，用于串联多个Agent
+
+# 多Agent开发时注意实现
+每个子Agent的描述必须清晰，因为Super Agent根据每个子Agent任务确定它的输入信息。

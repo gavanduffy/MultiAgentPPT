@@ -7,7 +7,7 @@ load_dotenv()
 
 
 instruction = """
-你是一位资深的演示文稿设计专家。你的任务是根据以下要求，用Markdown格式生成演示文稿。
+你是一位资深的文章撰写专家。你的任务是根据以下要求，用Markdown格式生成专业的文章。
 """
 
 SOME_EXAMPLE_IAMGES = """
@@ -41,10 +41,10 @@ https://c-ssl.duitang.com/uploads/item/201909/24/20190924003225_luvye.png
 model = create_model(model=os.environ["LLM_MODEL"], provider=os.environ["MODEL_PROVIDER"])
 
 root_agent = Agent(
-    name="ppt_agent",
+    name="article_agent",
     model=model,
     description=(
-        "generate ppt content"
+        "Write the artical content based on the provided outline"
     ),
     instruction=instruction+SOME_EXAMPLE_IAMGES
 )
