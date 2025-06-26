@@ -60,6 +60,20 @@ graph TD
 server.py里面定义了每个API的行为，修改API代码或者添加新的API的话，可以在其中操作。
 例如/events/query就是新增的，在types.py里面定义返回消息的格式，在server.py中定义接口行为。
 
+## Pycharm异常, 使用命令行python直接运行api.py即可
+```
+Exception ignored in: <function Task.__del__ at 0x104149080>
+Traceback (most recent call last):
+  File "/Users/admin/miniforge3/envs/multiagent/lib/python3.12/asyncio/tasks.py", line 150, in __del__
+    self._loop.call_exception_handler(context)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'call_exception_handler'
+2025-06-26 10:49:42,338 - [INFO] - _base_client - _sleep_for_retry - Retrying request to /chat/completions in 0.428395 seconds
+/Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/_pydevd_bundle/pydevd_pep_669_tracing.py:510: RuntimeWarning: coroutine 'TCPConnector._resolve_host_with_throttle' was never awaited
+  frame = _getframe()
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+```
+
 **API 接口测试：**
 
 项目提供了一个 `test_api.py` 脚本用于测试各个 API 接口的功能是否正常。
