@@ -76,7 +76,7 @@ RuntimeWarning: Enable tracemalloc to get the object allocation traceback
 
 ## 注册的Agent都是作为被工具调用的参数，Host Agent有2个工具，1个时查询子Agent，另一个是发送消息给子Agent
 self.list_remote_agents,
-self.send_message,
+self.send_message, 
 
 
 **API 接口测试：**
