@@ -12,6 +12,7 @@ import requests
 import json
 import os
 import time
+import uuid
 
 class ConversationServerTestCase(unittest.TestCase):
     """
@@ -40,7 +41,7 @@ class ConversationServerTestCase(unittest.TestCase):
         """
         url = f"{self.base_url}/agent/register"
         headers = {'Content-Type': 'application/json'}
-        agent_url = "127.0.0.1:10005"
+        agent_url = "127.0.0.1:10011"
         payload = {"params": agent_url}
         start_time = time.time()
         response = requests.post(url, headers=headers, json=payload)
@@ -51,9 +52,26 @@ class ConversationServerTestCase(unittest.TestCase):
         print(json.dumps(res, indent=2, ensure_ascii=False))
         self.assertIn("result", res, "/agent/register 接口返回值应包含 'result' 字段")
         print(f"/agent/register 测试花费时间: {time.time() - start_time}秒")
+
+    def test_list_agents(self):
+        """
+        测试 /agent/list 接口
+        """
+        url = f"{self.base_url}/agent/list"
+        start_time = time.time()
+        response = requests.post(url)
+        self.assertEqual(response.status_code, 200, f"/agent/list 接口状态码应为 200，但实际为 {response.status_code}")
+        self.assertEqual(response.headers.get('Content-Type'), 'application/json', f"/agent/list 接口 Content-Type 应为 application/json，但实际为 {response.headers.get('Content-Type')}")
+        res = response.json()
+        print(f"已经注册Agent有: ")
+        print(json.dumps(res, indent=2, ensure_ascii=False))
+        self.assertIn("result", res, "/agent/list 接口返回值应包含 'result' 字段")
+        self.assertIsInstance(res["result"], list, "/agent/list 接口返回值 'result' 应为列表")
+        print(f"/agent/list 测试花费时间: {time.time() - start_time}秒")
+
     def test_create_conversation(self):
         """
-        测试 /conversation/create 接口
+        创建会话
         """
         url = f"{self.base_url}/conversation/create"
         start_time = time.time()
@@ -71,7 +89,7 @@ class ConversationServerTestCase(unittest.TestCase):
 
     def test_list_conversation(self):
         """
-        测试 /conversation/list 接口
+        列出已创建过的会话
         """
         url = f"{self.base_url}/conversation/list"
         start_time = time.time()
@@ -87,7 +105,17 @@ class ConversationServerTestCase(unittest.TestCase):
 
     def test_send_message(self):
         """
-        测试 /message/send 接口
+        测试 /message/send 接口, 调用adk_host_manager.py的函数process_message
+        返回结果类似：
+        {
+          "jsonrpc": "2.0",
+          "id": "dc3bd5b4468546119336f14eb502cd13",
+          "result": {
+            "message_id": "ce2466656ff747b59102f46d43174b21",
+            "context_id": ""
+          },
+          "error": null
+        }
         """
         # 首先确保已经创建了一个 conversation
         if not hasattr(self, 'created_conversation_id'):
@@ -95,12 +123,12 @@ class ConversationServerTestCase(unittest.TestCase):
 
         url = f"{self.base_url}/message/send"
         headers = {'Content-Type': 'application/json'}
-        # text = "你好"
-        text = "什么是LNG?"
+        text = "你好"
         message_payload = {
             "params": {
                 "role": "user",
                 "parts": [{"type": "text", "text": text}],
+                "messageId": uuid.uuid4().hex,
                 "metadata": {"conversation_id": self.created_conversation_id}
             }
         }
@@ -108,12 +136,11 @@ class ConversationServerTestCase(unittest.TestCase):
         response = requests.post(url, headers=headers, json=message_payload)
         self.assertEqual(response.status_code, 200, f"/message/send 接口状态码应为 200，但实际为 {response.status_code}")
         self.assertEqual(response.headers.get('Content-Type'), 'application/json', f"/message/send 接口 Content-Type 应为 application/json，但实际为 {response.headers.get('Content-Type')}")
+        print(f"send message结果是:")
         res = response.json()
+        print(json.dumps(res, indent=2, ensure_ascii=False))
         self.assertIn("result", res, "/message/send 接口返回值应包含 'result' 字段")
         self.assertIn("message_id", res["result"], "/message/send 接口返回值 'result' 应包含 'message_id' 字段")
-        self.assertIn("conversation_id", res["result"], "/message/send 接口返回值 'result' 应包含 'conversation_id' 字段")
-        print(f"send message结果是:")
-        print(json.dumps(res, indent=2, ensure_ascii=False))
         print(f"/message/send 测试花费时间: {time.time() - start_time}秒")
         self.sent_message_id = res["result"]["message_id"]
 
@@ -122,7 +149,7 @@ class ConversationServerTestCase(unittest.TestCase):
         测试 /message/list 接口
         """
         # 首先确保已经创建了一个 conversation 并且发送了消息
-        self.created_conversation_id = "ed7ee627-227d-4269-ae94-cfe20b9446e4"
+        self.created_conversation_id = "1ec152ca-1a87-430c-812e-144d1d76f04d"
         self.sent_message_id = "fc745aaa-4e7b-4756-babf-b98e5da15e6d"
 
         url = f"{self.base_url}/message/list"
@@ -231,22 +258,6 @@ class ConversationServerTestCase(unittest.TestCase):
         self.assertIsInstance(res["result"], list, "/task/list 接口返回值 'result' 应为列表")
         print(f"/task/list 测试花费时间: {time.time() - start_time}秒")
 
-    def test_list_agents(self):
-        """
-        测试 /agent/list 接口
-        """
-        url = f"{self.base_url}/agent/list"
-        start_time = time.time()
-        response = requests.post(url)
-        self.assertEqual(response.status_code, 200, f"/agent/list 接口状态码应为 200，但实际为 {response.status_code}")
-        self.assertEqual(response.headers.get('Content-Type'), 'application/json', f"/agent/list 接口 Content-Type 应为 application/json，但实际为 {response.headers.get('Content-Type')}")
-        res = response.json()
-        print(f"已经注册Agent有: ")
-        print(json.dumps(res, indent=2, ensure_ascii=False))
-        self.assertIn("result", res, "/agent/list 接口返回值应包含 'result' 字段")
-        self.assertIsInstance(res["result"], list, "/agent/list 接口返回值 'result' 应为列表")
-        print(f"/agent/list 测试花费时间: {time.time() - start_time}秒")
-
     def test_update_api_key(self):
         """
         测试 /api_key/update 接口
@@ -278,7 +289,8 @@ class ConversationServerTestCase(unittest.TestCase):
         message_payload = {
             "params": {
                 "role": "user",
-                "parts": [{"type": "text", "text": "解释下什么是LNG"}],
+                "parts": [{"type": "text", "text": "你好"}],
+                "messageId": uuid.uuid4().hex,
                 "metadata": {"conversation_id": self.created_conversation_id}
             }
         }

@@ -172,7 +172,7 @@ class ADKHostManager(ApplicationManager):
             'context_id': context_id,
             'message_id': message.messageId,
         }
-        # Need to upsert session state now, only way is to append an event.
+        #这里等待模型的返回，如果配置模型有问题，这里会卡住
         await self._session_service.append_event(
             session,
             ADKEvent(

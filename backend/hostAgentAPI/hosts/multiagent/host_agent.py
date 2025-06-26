@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import json
+import os
 import uuid
 
 import httpx
@@ -24,7 +25,7 @@ from google.adk.tools.tool_context import ToolContext
 from google.genai import types
 
 from .remote_agent_connection import RemoteAgentConnections, TaskUpdateCallback
-
+from .create_model import create_model
 
 class HostAgent:
     """The host agent.
@@ -74,8 +75,9 @@ class HostAgent:
         self.agents = '\n'.join(agent_info)
 
     def create_agent(self) -> Agent:
+        model = create_model(model=os.environ["LLM_MODEL"],provider=os.environ["MODEL_PROVIDER"])
         return Agent(
-            model='gemini-2.0-flash-001',
+            model=model,
             name='host_agent',
             instruction=self.root_instruction,
             before_model_callback=self.before_model_callback,
