@@ -24,6 +24,8 @@ class HostAgentAPIClient:
         self.port = port
         self.base_url = f"http://{self.host}:{self.port}"
         self.headers = {'Content-Type': 'application/json'}
+        # 检查是否启动
+        self.ping()
 
     def _post_request(self, endpoint, payload=None):
         """
