@@ -26,6 +26,10 @@
         ```
     * 默认情况下，API 服务可能会在本地的某个端口（例如 `http://localhost:13000`）启动。
 
+# 测试hostAgentAPI
+python test_api.py  #单元测试
+python host_agent_api_client.py  #整体测试和使用方法
+
 ## 请求流程图
 ```mermaid
 graph TD
