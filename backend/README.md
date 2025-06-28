@@ -215,7 +215,7 @@ graph TD
     
     %% 子 Agent 与外部服务
     F -->|调用adk多agent| I[ADK多Agent流程]
-    G -->|MCP协议| H
+    G -->|MCP协议| H[MCP工具]
     
     %% 前端显示
     B -->|显示数据流| A
