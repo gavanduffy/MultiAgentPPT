@@ -1,35 +1,34 @@
-# A2A Multi-Agent Conversation Frontend
-📘 [中文Readme](./README_ZH.md)
+# A2A 多 Agent 对话前端
 
-This application provides a user interface for interacting with an A2A (Agent-to-Agent) multi-agent system.
+本应用提供了一个用户界面，用于与 A2A（Agent-to-Agent）多 Agent 系统进行对话。
 
-## Quick Start
+## 快速开始
 
-Follow these steps to run this frontend application locally:
+按照以下步骤在本地运行此前端应用：
 
-### Prerequisites
+### 前置条件
 
-Ensure you have Node.js and npm (or yarn) installed.
+确保你已经安装了 Node.js 和 npm（或 yarn）。
 
-### Install Dependencies
+### 安装依赖
 
-Execute the following command in the project's root directory to install the required dependencies:
+在项目根目录下执行以下命令来安装所需的依赖：
 
 ```bash
 npm install
 ```
 
-### Configure Environment Variables
-Check the .env file in the project's root directory.
-Confirm that the value of the REACT_APP_HOSTAGENT_API environment variable matches the port of your HostAgentAPI service.  For example:
+### 配置环境变量
+检查项目根目录下的 .env 文件，确保.env文件存在。
+确认 REACT_APP_HOSTAGENT_API 环境变量的值与你的 HostAgentAPI 服务的端口一致。例如：
 ```
 REACT_APP_HOSTAGENT_API=http://127.0.0.1:13000
 ```
-If your HostAgentAPI service is running on a different address or port, please modify the .env file accordingly.
+如果你的 HostAgentAPI 服务运行在不同的地址或端口，请相应地修改 .env 文件。
 
-### Start the Application
-Execute the following command to start the development server:
+### 启动应用
+执行以下命令来启动开发服务器：
 ```bash
 npm run dev
 ```
-Once started successfully, your browser should automatically open the application. If it doesn't open automatically, please visit the address displayed in the console (usually http://localhost:5173 or another address).
+启动成功后，通常你的浏览器会自动打开应用。如果未自动打开，请访问控制台中显示的地址（通常是 http://localhost:5173 或其他地址）。
