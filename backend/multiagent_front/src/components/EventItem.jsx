@@ -13,9 +13,9 @@ function EventItem({ event }) {
       <div className="text-gray-800 text-sm">
         {/* 遍历 content.parts，显示文本或数据 */}
         {event.content?.parts?.map((part, index) => {
-          if (part.type === 'text') {
+          if (part.kind === 'text') {
             return <p key={index}>{part.text}</p>;
-          } else if (part.type === 'data') {
+          } else if (part.kind === 'data') {
             // 对于数据类型，以 Pre 格式显示 JSON
             return (
               <pre key={index} className="bg-gray-200 p-2 rounded text-xs overflow-auto">

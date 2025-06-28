@@ -49,15 +49,15 @@ def main(host, port, agent_prompt_file, model_name, provider, mcp_config_path, a
     streaming = os.environ.get("STREAMING") == "true"
     agent_card_name = "PPT Agent"
     agent_name = "ppt_agent"
-    agent_description = "生成PPT大纲"
-    with  open(agent_prompt_file, "r") as f:
+    agent_description = "可以根据用户的需求生成PPT大纲"
+    with open(agent_prompt_file, "r") as f:
         agent_instruction = f.read()
     skill = AgentSkill(
         id=agent_name,
         name=agent_name,
         description=agent_description,
         tags=["ppt", "outline"],
-        examples=["Ivonescimab: Clinical Research and Progress in Non-Small Cell Lung Cancer"],
+        examples=["生成特斯拉汽车大纲"],
     )
 
     agent_card = AgentCard(

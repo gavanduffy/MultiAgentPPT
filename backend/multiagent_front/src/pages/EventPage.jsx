@@ -27,7 +27,7 @@ function EventPage() {
     // 1. 按 conversation_id 分组
     const groups = events.reduce((acc, event) => {
       // 确保 metadata 和 conversation_id 存在
-      const conversationId = event.content?.metadata?.conversation_id;
+      const conversationId = event.content?.contextId;
       if (conversationId) {
         if (!acc[conversationId]) {
           acc[conversationId] = [];
