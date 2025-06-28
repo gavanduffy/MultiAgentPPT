@@ -51,6 +51,7 @@ A2A 框架的核心在于通过 Host Agent 实现多 Agent 的层级调用与管
 
 -----
 
+
 ## 二、环境搭建
 
 ### 1\. 后端环境
@@ -183,6 +184,7 @@ A2A 框架的核心在于通过 Host Agent 实现多 Agent 的层级调用与管
 
 -----
 
+
 ## 四、A2A 结合 ADK 和 FastMCP 的技术亮点
 
 ### 1\. A2A 层级调用
@@ -199,6 +201,89 @@ A2A 框架的核心在于通过 Host Agent 实现多 Agent 的层级调用与管
 ### 3\. A2A 的 SSE
 
   * **流式输出**：A2A 通过 SSE 实时推送任务状态和结果，提供更流畅的用户体验。
+
+### 4\. 原理图
+```mermaid
+graph TD
+    %% 定义节点
+    A[用户] -->|发起任务| B(multiagent_front 前端)
+    B -->|调用 API| C(Host Agent)
+    
+    %% Host Agent 与子 Agent 交互
+    C -->|根据问题分配任务| F[slide_outline 子 Agent]
+    C -->|根据问题分配任务| G[simplePPT 子 Agent]
+    
+    %% 子 Agent 与外部服务
+    F -->|调用adk多agent| I[ADK多Agent流程]
+    G -->|MCP协议| H
+    
+    %% 前端显示
+    B -->|显示数据流| A
+    
+    
+    %% 样式定义
+    classDef host fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef agent fill:#bbf,stroke:#333,stroke-width:2px;
+    classDef frontend fill:#dfd,stroke:#333,stroke-width:2px;
+    classDef external fill:#fbf,stroke:#333,stroke-width:2px;
+    
+    class C host;
+    class F,G agent;
+    class B frontend;
+    class I,H external;
+```
+
+生产环境更复杂示例
+```mermaid
+flowchart TD
+    A[用户请求] --> C[Host Agent<br/>控制子Agent]
+    C --> D[Document Agent<br/>A2A Server]
+    C --> P[PPT Agent<br/>A2A Server]
+    C --> Q[Excel Agent<br/>A2A Server]
+    D --> E[Writer Agent<br/>ADK结构 Sequential]
+    E --> F[Translate<br/>翻译处理]
+    F --> G[Outline Generate<br/>生成大纲]
+    G --> H[(RAG Search DB<br/>知识库检索)]
+    H --> G
+    G --> I[Split Outline<br/>大纲拆分]
+    I --> J[Parallel Agent<br/>并行处理]
+    J --> K1[Research Agent 1]
+    J --> K2[Research Agent 2]
+    J --> K3[Research Agent n]
+    K1 --> L[Summary Agent<br/>摘要整合]
+    K2 --> L
+    K3 --> L
+    L --> M[Refine Agent<br/>内容精炼]
+    M --> N[(Web Search<br/>网络搜索)]
+    N --> M
+    M --> O[Output<br/>最终输出]
+
+    classDef userInput fill:#e1f5fe
+    classDef messageQueue fill:#f3e5f5
+    classDef controlAgent fill:#e8f5e8
+    classDef documentAgent fill:#fff3e0
+    classDef writerAgent fill:#fce4ec
+    classDef processNode fill:#f1f8e9
+    classDef parallelNode fill:#e3f2fd
+    classDef researchNode fill:#fff8e1
+    classDef summaryNode fill:#f9fbe7
+    classDef refineNode fill:#ffebee
+    classDef database fill:#e0f2f1
+    classDef output fill:#e8eaf6
+
+    class A userInput
+    class B messageQueue
+    class C controlAgent
+    class D documentAgent
+    class E writerAgent
+    class F,G,I processNode
+    class J parallelNode
+    class K1,K2,K3 researchNode
+    class L summaryNode
+    class M refineNode
+    class H,N database
+    class O output
+```
 
 -----
 
