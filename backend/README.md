@@ -151,7 +151,7 @@ A2A 框架的核心在于通过 Host Agent 实现多 Agent 的层级调用与管
 
 5.  在 **Agent 列表** 页面（调用 `/agent/list`）确认子 Agent 列表。
 
-<image-card alt="Agent 列表" src="agents_list.png" ></image-card>
+<image-card alt="Agent 列表" src="doc/agents_list.png" ></image-card>
 
 ### 2\. 发起任务
 
@@ -161,7 +161,7 @@ A2A 框架的核心在于通过 Host Agent 实现多 Agent 的层级调用与管
 
 3.  前端会调用 `/conversation/create` 获取 `conversation_id`，然后通过 `/message/send` 发送请求。
 
-<image-card alt="发起任务生成大纲" src="generate_outline.png" ></image-card>
+<image-card alt="发起任务生成大纲" src="doc/generate_outline.png" ></image-card>
 
 ### 3\. Host Agent 层级调用原理
 
@@ -173,13 +173,13 @@ A2A 框架的核心在于通过 Host Agent 实现多 Agent 的层级调用与管
 
   * **FastMCP 流式输出**：FastMCP 通过 SSE 实时返回大纲，状态更新（例如：“submitted” → “working” → “completed”）会显示在前端。
 
-<image-card alt="生成 PPT 内容" src="generate_ppt.png" ></image-card>
+<image-card alt="生成 PPT 内容" src="doc/generate_ppt.png" ></image-card>
 
 ### 4\. 查看中间结果
 
 前端会实时显示大纲。在 **会话列表** 页面查看所有会话（`/conversation/list`）。点击会话，可以查看消息历史（`/message/list`）和事件记录（`/events/query`），如任务状态更新或产物生成。
 
-<image-card alt="会话记录" src="conversation_record.png" ></image-card>
+<image-card alt="会话记录" src="doc/conversation_record.png" ></image-card>
 
 -----
 
