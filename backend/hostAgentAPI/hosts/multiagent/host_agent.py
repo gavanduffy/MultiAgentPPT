@@ -76,6 +76,7 @@ class HostAgent:
 
     def create_agent(self) -> Agent:
         model = create_model(model=os.environ["LLM_MODEL"],provider=os.environ["MODEL_PROVIDER"])
+        print(f'使用的模型是: {os.environ["LLM_MODEL"]}, 供应商是: {os.environ["MODEL_PROVIDER"]}')
         return Agent(
             model=model,
             name='host_agent',

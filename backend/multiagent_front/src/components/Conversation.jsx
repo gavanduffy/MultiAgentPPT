@@ -43,13 +43,12 @@ const Conversation = () => {
                 return [part.text || JSON.stringify(part.data) || "", 'text/plain'];
             });
         }
-
+        //原始的messageId换成 message_id
         return {
             event_id: event.id || uuidv4(),
-            message_id: event.content?.metadata?.message_id,
+            message_id: event.content?.messageId,
             role: event.actor === 'user' ? 'user' : (event.content?.role || 'agent'),
             content: contentParts,
-            metadata: { conversation_id: event.content?.metadata?.conversation_id || currentConversationId },
             timestamp: event.timestamp,
             actor: event.actor,
         };
@@ -98,7 +97,7 @@ const Conversation = () => {
 
                     for (const event of sortedEvents) {
                         if (event.id &&
-                            (event.content?.metadata?.conversation_id === conversationId) &&
+                            (event.content?.contextId === conversationId) &&
                             !processedEventIds.current.has(event.id)) {
 
                             processedEventIds.current.add(event.id);
@@ -197,7 +196,7 @@ const Conversation = () => {
             message_id: optimisticLocalId,
             role: 'user',
             content: [[messageContentToSend, 'text/plain']],
-            metadata: { conversation_id: conversationId },
+            // metadata: { conversation_id: conversationId },
             timestamp: Date.now() / 1000,
             dupCount: 1, // 重复次数, 默认为1，和上一条重复
         };
@@ -207,7 +206,8 @@ const Conversation = () => {
             const sendMessageResponse = await api.sendMessage({
                 role: 'user',
                 parts: [{ type: 'text', text: messageContentToSend }],
-                metadata: { conversation_id: conversationId },
+                messageId: uuidv4(),
+                contextId: conversationId,
             });
 
             if (sendMessageResponse && sendMessageResponse.message_id) {
