@@ -15,14 +15,14 @@
         ```
 2. **配置模型：**
     * cp env_template.txt 为 .env 
-    * 修改/hostAgentAPI/hosts/multiagent/host_agent.py中的模型，
-    * model=LiteLlm(model="deepseek/deepseek-chat", api_key="xxx", api_base="")
+    *支持的模型的provider包括参考hostAgentAPI/hosts/multiagent/create_model.py
+    * 例如claude, google, openai,deepseek, ali等
 
 
 3. **启动 API 服务：**
     * 在项目根目录下，运行以下命令启动 API 服务：
         ```bash
-        python api.py
+        python host_agent_api.py
         ```
     * 默认情况下，API 服务可能会在本地的某个端口（例如 `http://localhost:13000`）启动。
 
