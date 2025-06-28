@@ -23,6 +23,7 @@ multiagent_front # super Agent的前端代码
 slide_outline # 结合MCP工具调用实现的子Agent客户端
 simplePPT #adk实现的子agent客户端
 
+
 # A2A、ADK 与 MCP：构建多 Agent 层级调用系统
 
 本文基于 **MultiAgentPPT** 项目，深入探讨如何利用最新版 **A2A (Agent-to-Agent)** 框架，融合 **Google ADK** 和 **FastMCP**，构建一个高效的多 Agent 层级调用系统。通过 **multiagent\_front** 前端界面，用户能够便捷地注册子 Agent、发起任务并跟踪会话，而 **Host Agent** 则负责协调子 Agent 完成任务分发与执行。我们将以 **PPT 大纲和内容生成**为例，展示 A2A 的层级调用机制、ADK 的任务增强能力和 FastMCP 的流式输出支持，重点突出系统的架构设计与实现细节。
@@ -58,21 +59,19 @@ A2A 框架的核心在于通过 Host Agent 实现多 Agent 的层级调用与管
 
   * **安装依赖**：
     确保 Python 3 已安装，运行：
-    ```bash
-    pip install -r requirements.txt
-    ```
+
+    在终端中执行 `pip install -r requirements.txt`。
+
   * **配置模型**：
     复制 `env_template.txt` 为 `.env`，并配置模型 `provider`（例如 Google、OpenAI）。示例：
-    ```
-    MODEL_PROVIDER=google
-    GOOGLE_API_KEY=your_api_key_here
-    ```
+
+    在 `.env` 文件中配置 `MODEL_PROVIDER=google` 和 `GOOGLE_API_KEY=your_api_key_here`。
     参考 `hostAgentAPI/hosts/multiagent/create_model.py` 设置支持的模型。
+
   * **启动 Host Agent API**：
     运行：
-    ```bash
-    python host_agent_api.py
-    ```
+
+    在终端中执行 `python host_agent_api.py`。
     API 默认运行在 `http://localhost:13000`。
 
 ### 2\. 前端环境
@@ -81,61 +80,54 @@ A2A 框架的核心在于通过 Host Agent 实现多 Agent 的层级调用与管
 
   * **安装依赖**：
     确保安装 Node.js 和 npm，运行：
-    ```bash
-    npm install
-    ```
+
+    在 `multiagent_front` 目录下执行 `npm install`。
+
   * **配置环境变量**：
     检查 `.env` 文件，确认 `REACT_APP_HOSTAGENT_API` 指向 API 地址：
-    ```
-    REACT_APP_HOSTAGENT_API=http://127.0.0.1:13000
-    ```
+
+    在 `multiagent_front/.env` 文件中确认 `REACT_APP_HOSTAGENT_API=http://127.0.0.1:13000`。
+
   * **启动前端**：
     运行：
-    ```bash
-    npm run dev
-    ```
+
+    在 `multiagent_front` 目录下执行 `npm run dev`。
     前端默认在 `http://localhost:5173` 运行。
 
 ### 3\. 运行子 Agent 生成大纲
 
 进入 `slide_outline` 目录：
 
-```bash
-cd slide_outline
-```
+在终端中执行 `cd slide_outline`。
 
   * **MCP 配置**：
     检查 `mcp_config.json`：
-    ```bash
-    cat mcp_config.json
-    ```
+
+    在终端中执行 `cat mcp_config.json`。
     在 `.env` 中添加 Google GenAI API 密钥：
-    ```
-    GOOGLE_GENAI_API_KEY=your_genai_api_key
-    ```
+
+    在 `slide_outline/.env` 文件中添加 `GOOGLE_GENAI_API_KEY=your_genai_api_key`。
+
   * **启动 SSE 模式的 MCP 服务**：
-    ```bash
-    fastmcp run --transport sse mcpserver/rag_tool.py
-    ```
+
+    在 `slide_outline` 目录下执行 `fastmcp run --transport sse mcpserver/rag_tool.py`。
+
   * **启动主服务**：
-    ```bash
-    python main_api.py
-    ```
+
+    在 `slide_outline` 目录下执行 `python main_api.py`。
     子 Agent 的监听地址为 `http://localhost:10001`。
 
 ### 4\. 运行第二个子 Agent 根据大纲生成内容
 
 进入 `simplePPT` 目录：
 
-```bash
-cd simplePPT
-cp env_template .env
-```
+在终端中执行 `cd simplePPT`。
+复制环境变量文件：
+在终端中执行 `cp env_template .env`。
 
   * **启动主服务**：
-    ```bash
-    python main_api.py
-    ```
+
+    在 `simplePPT` 目录下执行 `python main_api.py`。
     子 Agent 的监听地址为 `http://localhost:10011`。
 
 -----
@@ -147,29 +139,57 @@ cp env_template .env
 ### 1\. 注册子 Agent
 
 1.  打开前端界面 (`http://localhost:5173`)。
+
 2.  进入 **Agent 注册** 页面（通常在顶部或侧边栏）。
+
 3.  添加子 Agent 地址：
+
       * `http://localhost:10001`
       * `http://localhost:10011`
+
 4.  提交后，Host Agent 会通过 `/agent/register` 记录子 Agent，界面将显示注册成功。
+
 5.  在 **Agent 列表** 页面（调用 `/agent/list`）确认子 Agent 列表。
+
+    \<div align="center"\>
+    \<img src="agents\_list.png" alt="Agent 列表" width="80%"\>
+    \</div\>
 
 ### 2\. 发起任务
 
 1.  在 **对话** 或 **新建会话** 页面，点击“创建会话”。
+
 2.  输入任务，例如：“调研电动汽车发展”。
+
 3.  前端会调用 `/conversation/create` 获取 `conversation_id`，然后通过 `/message/send` 发送请求。
+
+    \<div align="center"\>
+    \<img src="generate\_outline.png" alt="发起任务生成大纲" width="80%"\>
+    \</div\>
 
 ### 3\. Host Agent 层级调用原理
 
   * **任务解析**：Host Agent 使用 `list_remote_agents` 工具查询可用子 Agent。
+
   * **任务分配**：根据请求内容，Host Agent 分配任务给 `slide_outline` 子 Agent 生成大纲。
+
   * **ADK 增强**：`slide_outline` 通过 `adk_agent_executor.py` 调用 Google GenAI API，生成结构化大纲。
+
   * **FastMCP 流式输出**：FastMCP 通过 SSE 实时返回大纲，状态更新（例如：“submitted” → “working” → “completed”）会显示在前端。
+
+    \<div align="center"\>
+    \<img src="generate\_ppt.png" alt="生成 PPT 内容" width="80%"\>
+    \</div\>
 
 ### 4\. 查看中间结果
 
 前端会实时显示大纲。在 **会话列表** 页面查看所有会话（`/conversation/list`）。点击会话，可以查看消息历史（`/message/list`）和事件记录（`/events/query`），如任务状态更新或产物生成。
+
+```
+<div align="center">
+    <img src="conversation_record.png" alt="会话记录" width="80%">
+</div>
+```
 
 -----
 
@@ -198,9 +218,7 @@ cp env_template .env
 
 运行 `test_api.py` 验证 API 接口：
 
-```bash
-python test_api.py
-```
+在终端中执行 `python test_api.py`。
 
 检查状态码、响应内容和耗时。
 
@@ -208,9 +226,7 @@ python test_api.py
 
 使用 `host_agent_api_client.py` 模拟前端操作：
 
-```bash
-python host_agent_api_client.py
-```
+在终端中执行 `python host_agent_api_client.py`。
 
 ### 3\. 常见问题
 
