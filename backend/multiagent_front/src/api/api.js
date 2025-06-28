@@ -152,7 +152,7 @@ async function request(endpoint, options = {}) {
     }
 }
 
-"""// 获取对话列表
+
 export const listConversations = async () => {
     // 假设基于 Python 代码是 POST 请求且请求体为空
     return request('/conversation/list', { method: 'POST' });
@@ -197,7 +197,7 @@ export const updateApiKey = async (apiKey) => {
 
 export const getEvents = async () => {
     return request('/events/get', { method: 'POST' });
-};""
+};
 
 //根据对话id获取它的事件
 export const queryEvents = async (conversationId) => {

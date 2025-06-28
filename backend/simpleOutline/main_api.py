@@ -15,6 +15,7 @@ from google.adk.agents.run_config import RunConfig, StreamingMode
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
+from starlette.middleware.cors import CORSMiddleware
 from a2a.types import (
     AgentCapabilities,
     AgentCard,
@@ -105,10 +106,17 @@ def main(host, port):
     a2a_app = A2AStarletteApplication(
         agent_card=agent_card, http_handler=request_handler
     )
-
+    app = a2a_app.build()
+    # CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     logger.info(f"服务启动中，监听地址: http://{host}:{port}")
     # 启动 uvicorn 服务器
-    uvicorn.run(a2a_app.build(), host=host, port=port)
+    uvicorn.run(app, host=host, port=port)
 
 if __name__ == "__main__":
     main()
