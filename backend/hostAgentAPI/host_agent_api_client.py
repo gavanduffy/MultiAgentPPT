@@ -6,6 +6,7 @@
 # @Desc  : 使用host agent，调用host agent
 
 import requests
+import asyncio
 import json
 import time
 import uuid
@@ -66,11 +67,17 @@ class HostAgentAPIClient:
         """
         return self._post_request("/agent/list")
 
-    def create_conversation(self):
+    def create_conversation(self, conversation_id={}):
         """
         Creates a new conversation.
         """
-        return self._post_request("/conversation/create")
+        payload = {"conversation_id": conversation_id}
+        return self._post_request("/conversation/create", payload)
+        # if conversation_id:
+        #     payload = {"conversation_id": conversation_id}
+        #     return self._post_request("/conversation/create", payload)
+        # else:
+        #     return self._post_request("/conversation/create")
 
     def list_conversations(self):
         """
@@ -148,6 +155,7 @@ class HostAgentAPIClient:
         print(f"Message sent, message_id: {message_id}")
 
         start_time = time.time()
+        last_events_number = 0
         while time.time() - start_time < timeout:
             pending_response = self.get_pending_messages()
             if pending_response and "result" in pending_response:
@@ -156,12 +164,25 @@ class HostAgentAPIClient:
                 if message_id not in pending_ids:
                     print("Message processed.")
                     return True
+            events = self.query_events(conversation_id)
+            event_results = events["result"]
+            new_events = event_results[last_events_number:]
+            last_events_number += len(event_results)
+            if new_events:
+                print(f"有新的事件收到了,事件内容: {new_events}")
             time.sleep(interval)
         
         print(f"Timeout: Message {message_id} still pending after {timeout} seconds.")
         return False
 
 if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Host Agent API Client")
+    # parser.add_argument("--message", type=str, default="你好。", help="The message to send to the agent.")
+    parser.add_argument("--message", type=str, default="帮我研究一个关于依沃西单抗在非小细胞肺癌的临床研究的进展。", help="The message to send to the agent.")
+    args = parser.parse_args()
+
     client = HostAgentAPIClient()
     status = client.register_agent(agent_url="127.0.0.1:10001")
     print(f"Agent注册结果: {status}")
@@ -184,7 +205,7 @@ if __name__ == '__main__':
 
             # 3. Send a message and wait for it to be processed
             print("\n发送消息，并等待返回结果")
-            client.send_and_poll_pending(conversation_id, "你好，这是一个测试。")
+            client.send_and_poll_pending(conversation_id, args.message, timeout=20*60)
 
             # 4. List messages in the conversation
             print("\n列出已有消息")

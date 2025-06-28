@@ -3,7 +3,7 @@
 **项目简介：**
 
 本项目的目标是为 A2A的协调者和组织者的 Agent 提供启动和管理功能的 API 接口。通过这些接口，可以方便地和其它Agent进行交互，从而实现对其它Agent控制。
-
+即Super Agent
 
 **快速开始：**
 
@@ -123,3 +123,15 @@ self.send_message,
 | `/message/list`        | 获取指定会话的所有消息                     |
 | `/task/list`           | 查看当前所有调度任务                      |
 | `/api_key/update`      | 更新当前系统使用的 API Key               |
+
+
+## 文档
+self.add_event，记录事件
+
+三处使用：
+
+1. process_message 方法内,当用户通过 process_message 方法发送一条消息时，系统会立即将这条用户消息记录为一个事件。 这个事件的 actor 被设置为 'user'，表示该事件是由用户触发的。
+
+2.process_message 记录代理产生的事件（状态更新、产物更新等）
+
+3. task_callback 是作为 HostAgent 的回调函数。这意味着当底层代理发生任务状态更新事件 (TaskStatusUpdateEvent) 或 任务产物更新事件 (TaskArtifactUpdateEvent) 时

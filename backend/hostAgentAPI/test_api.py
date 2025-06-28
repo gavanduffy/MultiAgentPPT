@@ -75,8 +75,7 @@ class ConversationServerTestCase(unittest.TestCase):
         """
         url = f"{self.base_url}/conversation/create"
         start_time = time.time()
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, headers=headers, json={})
+        response = requests.post(url)
         self.assertEqual(response.status_code, 200, f"/conversation/create 接口状态码应为 200，但实际为 {response.status_code}")
         self.assertEqual(response.headers.get('Content-Type'), 'application/json', f"/conversation/create 接口 Content-Type 应为 application/json，但实际为 {response.headers.get('Content-Type')}")
         res = response.json()
@@ -87,6 +86,29 @@ class ConversationServerTestCase(unittest.TestCase):
         print(f"result是: {res['result']}")
         print(f"创建的conversation_id是: {conversation_id}")
         self.created_conversation_id = conversation_id # 保存 conversation_id 供后续测试使用
+
+    def test_create_conversation_with_id(self):
+        """
+        创建会话, 自定义会话id
+        """
+        url = f"{self.base_url}/conversation/create"
+        start_time = time.time()
+        headers = {'Content-Type': 'application/json'}
+        message_payload = {
+            "conversation_id": "123456"
+        }
+        response = requests.post(url, headers=headers, json=message_payload)
+        self.assertEqual(response.status_code, 200, f"/conversation/create 接口状态码应为 200，但实际为 {response.status_code}")
+        self.assertEqual(response.headers.get('Content-Type'), 'application/json', f"/conversation/create 接口 Content-Type 应为 application/json，但实际为 {response.headers.get('Content-Type')}")
+        res = response.json()
+        self.assertIn("result", res, "/conversation/create 接口返回值应包含 'result' 字段")
+        self.assertIn("conversation_id", res["result"], "/conversation/create 接口返回值 'result' 应包含 'conversation_id' 字段")
+        print(f"/conversation/create 测试花费时间: {time.time() - start_time}秒")
+        conversation_id = res["result"]["conversation_id"]
+        print(f"result是: {res['result']}")
+        print(f"创建的conversation_id是: {conversation_id}")
+        self.created_conversation_id = conversation_id # 保存 conversation_id 供后续测试使用
+
 
     def test_list_conversation(self):
         """
@@ -229,7 +251,7 @@ class ConversationServerTestCase(unittest.TestCase):
         测试查询事件的接口
         """
         # 可以先调用test_send_message创建1个conversation
-        conversation_id = "94b16c91b4ed43e6a965698aeb1e0a66"
+        conversation_id = "d11e4c53-12b1-4f22-b9d3-8fdc5ed98fc7"
         url = f"{self.base_url}/events/query"
         headers = {'Content-Type': 'application/json'}
         message_payload = {

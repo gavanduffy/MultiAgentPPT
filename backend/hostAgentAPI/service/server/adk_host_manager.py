@@ -103,9 +103,10 @@ class ADKHostManager(ApplicationManager):
             memory_service=self._memory_service,
         )
 
-    async def create_conversation(self) -> Conversation:
+    async def create_conversation(self,conversation_id) -> Conversation:
+        # 使用会话id作为agent的session_id
         session = await self._session_service.create_session(
-            app_name=self.app_name, user_id=self.user_id
+            app_name=self.app_name, user_id=self.user_id, session_id=conversation_id
         )
         conversation_id = session.id
         c = Conversation(conversation_id=conversation_id, is_active=True)
@@ -257,6 +258,7 @@ class ADKHostManager(ApplicationManager):
     def emit_event(self, task: TaskCallbackArg, agent_card: AgentCard):
         content = None
         context_id = task.contextId
+        print(f"call back 事件要处理的task到event: {task}")
         if isinstance(task, TaskStatusUpdateEvent):
             if task.status.message:
                 content = task.status.message
@@ -298,6 +300,7 @@ class ADKHostManager(ApplicationManager):
                 contextId=context_id,
             )
         if content:
+            print("Call back函数收集到的event的parts内容", content.parts)
             self.add_event(
                 Event(
                     id=str(uuid.uuid4()),
@@ -396,6 +399,7 @@ class ADKHostManager(ApplicationManager):
                 del self._artifact_chunks[artifact.artifactId][-1]
 
     def add_event(self, event: Event):
+        print(f"已经收集了事件数据: {len(self._events)} 条，正在添加的event的id是: {event.id}")
         self._events[event.id] = event
 
     def get_conversation(

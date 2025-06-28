@@ -46,14 +46,11 @@ class ConversationServer:
             os.environ.get('GOOGLE_GENAI_USE_VERTEXAI', '').upper() == 'TRUE'
         )
 
-        if agent_manager.upper() == 'ADK':
-            self.manager = ADKHostManager(
-                http_client,
-                api_key=api_key,
-                uses_vertex_ai=uses_vertex_ai,
-            )
-        else:
-            self.manager = InMemoryFakeAgentManager()
+        self.manager = ADKHostManager(
+            http_client,
+            api_key=api_key,
+            uses_vertex_ai=uses_vertex_ai,
+        )
         self._file_cache = {}  # dict[str, FilePart] maps file id to message data
         self._message_to_cache = {}  # dict[str, str] maps message id to cache id
 
@@ -90,10 +87,12 @@ class ConversationServer:
         data = await request.json()
         conversation_id = data['params'].get("conversation_id")
         # 过滤出属于该 conversation_id 的事件
-        events = [
-            event for event in self.manager.events
-            if getattr(event.content, "contextId", None) == conversation_id
-        ]
+        events = []
+        for event in self.manager.events:
+            event_content = event.content
+            if hasattr(event_content, 'contextId') and event_content.contextId == conversation_id:
+                events.append(event)
+        print(f"过滤出属于该 conversation_id {conversation_id} 的事件数量: {len(events)}")
         return QueryEventResponse(result=events)
 
     # Update API key in manager
@@ -101,8 +100,13 @@ class ConversationServer:
         if isinstance(self.manager, ADKHostManager):
             self.manager.update_api_key(api_key)
 
-    async def _create_conversation(self):
-        c = await self.manager.create_conversation()
+    async def _create_conversation(self, request: Request):
+        try:
+            data = await request.json()
+        except Exception:
+            data = {}
+        conversation_id = data.get('conversation_id')
+        c = await self.manager.create_conversation(conversation_id=conversation_id)
         return CreateConversationResponse(result=c)
 
     async def _send_message(self, request: Request):
