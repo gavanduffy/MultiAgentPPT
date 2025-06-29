@@ -1,4 +1,4 @@
-# PPT相关的子Agent
+# 1.PPT相关的子Agent
 
 ## 后端的依赖
 pip install -r requirements.txt
@@ -17,7 +17,7 @@ super_agent   # 文字版本的多智能体系统，用于串联多个Agent，�
 每个子Agent的描述必须清晰，因为Super Agent根据每个子Agent任务确定它的输入信息。
 
 
-# 多Agent(下面是详细的介绍)
+# 2.多Agent(下面是详细的介绍)
 hostAgentAPI  # 纯A2A的API的版本的总Agent，用于串联多个Agent
 multiagent_front # super Agent的前端代码
 slide_outline # 结合MCP工具调用实现的子Agent客户端
