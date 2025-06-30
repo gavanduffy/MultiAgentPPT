@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "next build",
-    "db:push": "prisma db push && psql \"$DATABASE_URL\" -f insert_one_user.sql",
+    "db:push": "prisma db push && node prisma/seed_user.js",
     "db:studio": "prisma studio",
     "dev": "next dev",
     "postinstall": "prisma generate",

@@ -67,8 +67,8 @@ MultiAgentPPT/
 ├── backend/              # 后端多Agent服务目录
 │   ├── simpleOutline/    # 简化版大纲生成服务（无外部依赖）
 │   ├── simplePPT/        # 简化版PPT生成服务（不使用检索或并发）
-│   ├── slide_outline/    # 带外部检索的大纲生成服务
-│   ├── slide_agent/      # 并发式多Agent PPT生成主服务
+│   ├── slide_outline/    # 带外部检索的大纲生成大纲服务（大纲根据MCP工具检索后更精准）
+│   ├── slide_agent/      # 并发式多Agent PPT生成主要xml格式的PPT内容
 ├── frontend/             # Next.js 前端界面
 ```
 

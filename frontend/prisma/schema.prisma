@@ -30,7 +30,6 @@ model User {
     interests     String[]
     location      String?
     website       String?
-    accounts      Account[]
 
     role      UserRole @default(USER)
     hasAccess Boolean  @default(false)
