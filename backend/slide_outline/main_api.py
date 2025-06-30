@@ -50,7 +50,7 @@ def main(host, port, agent_prompt_file, model_name, provider, mcp_config_path, a
     agent_card_name = "PPT Agent"
     agent_name = "ppt_agent"
     agent_description = "可以根据用户的需求生成PPT大纲"
-    with open(agent_prompt_file, "r") as f:
+    with open(agent_prompt_file, "r", encoding='utf-8') as f:
         agent_instruction = f.read()
     skill = AgentSkill(
         id=agent_name,
