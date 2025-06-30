@@ -115,9 +115,10 @@ MultiAgentPPT/
 
 ---
 
-## 🧱 前端数据库设置
+## 🧱 前端数据库设置和安装与运行（Next.js）
 
 数据库存储用户生成的PPT：
+
 
 1. 使用 Docker 启动 PostgreSQL：
 
@@ -125,16 +126,7 @@ MultiAgentPPT/
    docker run --name postgresdb -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=welcome -d postgres
    ```
 
-2. 安装依赖并推送数据库模型：
-
-   ```bash
-   pnpm install
-   pnpm db:push
-   ```
-
-3. 插入默认用户（如果前端报错无用户，请尝试手动插入一条用户数据：frontend/insert_one_user.sql)
-
-4. `.env` 示例配置：
+2. 修改`.env` 示例配置：
 
    ```env
    DATABASE_URL="postgresql://postgres:welcome@localhost:5432/presentation_ai"
@@ -142,28 +134,14 @@ MultiAgentPPT/
    A2A_AGENT_SLIDES_URL="http://localhost:10011"
    ```
 
-### 🌐 前端安装与运行（Next.js）
-
-1. 安装依赖：
+3. 安装依赖并推送数据库模型：
 
    ```bash
-   cd frontend
-   npm install
+   pnpm install
+   pnpm db:push
    ```
 
-2. 配置环境变量：
-
-   ```bash
-   cp env_template .env
-   ```
-
-3. 运行前端开发服务器：
-
-   ```bash
-   npm run dev
-   ```
-
-4. 打开浏览器访问：[http://localhost:3000](http://localhost:3000)
+4. 打开浏览器访问：[http://localhost:3000/presentation](http://localhost:3000/presentation)
 
 ---
 
