@@ -140,8 +140,12 @@ MultiAgentPPT/
 3. 安装依赖并推送数据库模型：
 
    ```bash
+   # 安装前端依赖
    pnpm install
+   # 推送数据库模型和插入用户数据
    pnpm db:push
+   # 启动前端
+   npm run dev
    ```
 
 4. 打开浏览器访问：[http://localhost:3000/presentation](http://localhost:3000/presentation)
