@@ -43,6 +43,7 @@ export function sendMessageStreaming(agentEndpointUrl, prompt, options = {}, onM
           role: 'user',
           parts: [{ type: 'text', text: prompt }],
           messageId: messageId,
+          contextId: options.contextId,
           kind: 'message'
       }
   };

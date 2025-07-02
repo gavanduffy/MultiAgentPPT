@@ -86,23 +86,15 @@ function ChatInterface({ agentCard }) {
     const taskId = uuidv4();
     const agentEndpointUrl = agentCard.agentEndpointUrl;
 
-    const payload = {
-      id: taskId,
-      sessionId,
-      acceptedOutputModes: ['text', 'data'],
-      message: {
-        role: 'user',
-        parts: [{ type: 'text', text: prompt }],
-      },
-    };
-
 
     currentStreamingMessageIdRef.current = agentMessage.id;
 
     abortStreamingRef.current = sendMessageStreaming(
       agentEndpointUrl,
       prompt,
-      {},
+      {
+        contextId: sessionId,
+      },
       (streamEvent) => {
         console.log('接收到流事件：', streamEvent);
 
