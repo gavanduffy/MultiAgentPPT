@@ -10,7 +10,7 @@ slide_outline   # 用于前端的大纲生成，经过检索生成大纲，更�
 slide_agent   #标准多智能体系统，根据大纲生成ppt，更专业
 
 
-## gemini目前最适配，其它的LLM的支持,可以修改create_model.py, 然后在你的.env文件中，对MODEL_PROVIDER和LLM_MODEL这2个环境变量进行配置
+## gemini目前最适配(第一次一定要用gemini试验，其它还有bug），其它的LLM的支持,可以修改create_model.py, 然后在你的.env文件中，对MODEL_PROVIDER和LLM_MODEL这2个环境变量进行配置
 * 文件: slide_agent/slide_agent/create_model.py
 * 文件: simpleOutline/create_model.py
 * 文件: simplePPT/create_model.py
