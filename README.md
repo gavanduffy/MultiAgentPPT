@@ -81,7 +81,7 @@ MultiAgentPPT/
 
 ### 🐍 后端环境配置（Python）
 
-1. 创建并激活 Conda 虚拟环境：
+1. 创建并激活 Conda 虚拟环境（推荐python3.11以上版本，否则可能有bug）：
 
    ```bash
    conda create --name multiagent python=3.12
