@@ -11,10 +11,10 @@ slide_agent   #标准多智能体系统，根据大纲生成ppt，更专业
 
 
 ## gemini目前最适配，其它的LLM的支持,可以修改create_model.py, 然后在你的.env文件中，对MODEL_PROVIDER和LLM_MODEL这2个环境变量进行配置
-文件: slide_agent/slide_agent/create_model.py
-文件: simpleOutline/create_model.py
-文件: simplePPT/create_model.py
-文件: hostAgentAPI/hosts/multiagent/create_model.py
+* 文件: slide_agent/slide_agent/create_model.py
+* 文件: simpleOutline/create_model.py
+* 文件: simplePPT/create_model.py
+* 文件: hostAgentAPI/hosts/multiagent/create_model.py
 
 ## 开发中（待完善)
 super_agent   # 文字版本的多智能体系统，用于串联多个Agent，纯文本的输入，输出，控制大纲和PPT生成
