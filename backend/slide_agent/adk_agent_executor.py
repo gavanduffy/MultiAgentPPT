@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator,AsyncIterable
 from google.adk import Runner
 
 from google.adk.events import Event
@@ -13,11 +13,22 @@ from a2a.server.events.event_queue import EventQueue
 from a2a.server.tasks import TaskUpdater
 from a2a.types import (
     AgentCard,
+    Artifact,
     FilePart,
     FileWithBytes,
     FileWithUri,
+    GetTaskRequest,
+    GetTaskSuccessResponse,
+    Message,
+    MessageSendParams,
     Part,
+    Role,
+    SendMessageRequest,
+    SendMessageSuccessResponse,
+    Task,
+    TaskQueryParams,
     TaskState,
+    TaskStatus,
     TextPart,
     DataPart,
     UnsupportedOperationError,
@@ -72,6 +83,7 @@ class ADKAgentExecutor(AgentExecutor):
         session_obj = await self._upsert_session(
             session_id,
         )
+        logger.debug(f"收到请求信息: {new_message}")
         # Update session_id with the ID from the resolved session object
         # to be used in self._run_agent.
         session_id = session_obj.id
@@ -88,7 +100,7 @@ class ADKAgentExecutor(AgentExecutor):
                 logger.info(f"[adk executor] {agent_author}完成")
                 if agent_author == "SummaryAgent":
                     # 最后一个agent的输出了，输出成status
-                    task_updater.update_status(
+                    await task_updater.update_status(
                         TaskState.working,
                         message=task_updater.new_agent_message(
                             convert_genai_parts_to_a2a(event.content.parts),
@@ -105,14 +117,14 @@ class ADKAgentExecutor(AgentExecutor):
                     agent_names.remove(agent_author)
                 parts = convert_genai_parts_to_a2a(event.content.parts)
                 logger.info("返回最终的结果: %s", parts)
-                task_updater.add_artifact(parts)
+                await task_updater.add_artifact(parts)
                 if not agent_names:
                     # 说明任务整体完成了，没有要进行其它任务的Agent了，所有Agent都完成了自己的任务
-                    task_updater.complete()  # 这个会关掉event的Queue
+                    await task_updater.complete()  # 这个会关掉event的Queue
                     break
             if event.get_function_calls():
                 logger.info(f"触发了工具调用。。。返回DataPart数据, {event}")
-                task_updater.update_status(
+                await task_updater.update_status(
                     TaskState.working,
                     message=task_updater.new_agent_message(
                         convert_genai_parts_to_a2a(event.content.parts),
@@ -120,7 +132,7 @@ class ADKAgentExecutor(AgentExecutor):
                 )
             elif event.get_function_responses():
                 logger.info(f"工具返回了结果。。。返回DataPart数据, {event}")
-                task_updater.update_status(
+                await task_updater.update_status(
                     TaskState.working,
                     message=task_updater.new_agent_message(
                         convert_genai_parts_to_a2a(event.content.parts),
@@ -128,7 +140,7 @@ class ADKAgentExecutor(AgentExecutor):
                 )
             else:
                 logger.info(f"其它的事件,例如数据的流事件 {event}")
-                task_updater.update_status(
+                await task_updater.update_status(
                     TaskState.working,
                     message=task_updater.new_agent_message(
                         convert_genai_parts_to_a2a(event.content.parts),
@@ -144,8 +156,8 @@ class ADKAgentExecutor(AgentExecutor):
         updater = TaskUpdater(event_queue, context.task_id, context.context_id)
         # Immediately notify that the task is submitted.
         if not context.current_task:
-            updater.submit()
-        updater.start_work()
+            await updater.submit()
+        await updater.start_work()
         await self._process_request(
             types.UserContent(
                 parts=convert_a2a_parts_to_genai(context.message.parts),
