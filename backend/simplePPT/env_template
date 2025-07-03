@@ -4,7 +4,7 @@ DEEPSEEK_API_KEY=xxx
 ALI_API_KEY=sk-xxx
 OPENAI_API_KEY=xxx
 CLAUDE_API_KEY=xxx
-# 使用LLM的流式的输出
+# 使用LLM的流式的响应，测试gemini的效果很好，true表示开启流的请求和响应
 STREAMING=true
 MODEL_PROVIDER=google
 LLM_MODEL=gemini-2.0-flash
