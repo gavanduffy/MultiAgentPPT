@@ -23,6 +23,7 @@ async def httpx_client():
                 'messageId': request_id
             }
         }
+        print(f"发送message信息: {send_message_payload}")
         # 流式请求的示例
         streaming_request = SendStreamingMessageRequest(
             id=request_id,
