@@ -10,3 +10,6 @@ STREAMING=true
 MODEL_PROVIDER=google
 # 使用哪个模型
 LLM_MODEL=gemini-2.0-flash
+
+#MODEL_PROVIDER=deepseek
+#LLM_MODEL=deepseek-chat

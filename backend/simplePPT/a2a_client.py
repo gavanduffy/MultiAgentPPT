@@ -1,5 +1,6 @@
 import uuid
 import httpx
+import time
 from a2a.client import A2AClient
 import asyncio
 from a2a.types import (MessageSendParams, SendMessageRequest, SendStreamingMessageRequest)
@@ -24,11 +25,13 @@ async def httpx_client():
         }
         # 流式请求的示例
         streaming_request = SendStreamingMessageRequest(
+            id=request_id,
             params=MessageSendParams(**send_message_payload)  # 同样的 payload 可以用于非流式请求
         )
 
         stream_response = client.send_message_streaming(streaming_request)
         async for chunk in stream_response:
+            print(time.time())
             print(chunk.model_dump(mode='json', exclude_none=True))
 
 if __name__ == '__main__':

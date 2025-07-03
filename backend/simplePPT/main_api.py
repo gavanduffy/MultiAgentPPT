@@ -15,6 +15,7 @@ from google.adk.agents.run_config import RunConfig, StreamingMode
 from a2a.server.apps import A2AStarletteApplication
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.tasks import InMemoryTaskStore
+from a2a.types import AgentCapabilities, AgentCard, AgentSkill
 from starlette.middleware.cors import CORSMiddleware
 from a2a.types import (
     AgentCapabilities,
@@ -60,10 +61,11 @@ def main(host, port):
         version="1.0.0",
         defaultInputModes=["text"],
         defaultOutputModes=["text"],
-        capabilities=AgentCapabilities(streaming=True),
+        capabilities=AgentCapabilities(streaming=streaming),
         skills=[skill],
     )
 
+    # 初始化 Runner，管理 agent 的执行、会话、记忆和产物
     logger.info("初始化Runner...")
     runner = Runner(
         app_name=agent_card.name,
@@ -75,13 +77,13 @@ def main(host, port):
 
     # 根据环境变量决定是否启用流式输出
     if streaming:
-        logger.info("启用流式SSE模式")
+        logger.info("使用 SSE 流式输出模式")
         run_config = RunConfig(
             streaming_mode=StreamingMode.SSE,
             max_llm_calls=500
         )
     else:
-        logger.info("启用非流式模式")
+        logger.info("使用普通输出模式")
         run_config = RunConfig(
             streaming_mode=StreamingMode.NONE,
             max_llm_calls=500

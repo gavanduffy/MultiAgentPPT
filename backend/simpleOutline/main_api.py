@@ -68,6 +68,7 @@ def main(host: str, port: int):
     )
 
     # 初始化 Runner，管理 agent 的执行、会话、记忆和产物
+    logger.info("初始化Runner...")
     runner = Runner(
         app_name=agent_card.name,
         agent=root_agent,
@@ -102,6 +103,7 @@ def main(host: str, port: int):
     a2a_app = A2AStarletteApplication(
         agent_card=agent_card, http_handler=request_handler
     )
+
     app = a2a_app.build()
     # CORS
     app.add_middleware(
