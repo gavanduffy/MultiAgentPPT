@@ -20,6 +20,7 @@ MultiAgentPPT 利用多智能体架构实现从主题输入到完整演示文稿
 ## 近期升级计划
 - 多模态的理解图片，图片格式处理（例如方向，大小等检测），用于PPT的不同位置。
 - metadata数据传输，传输一些前端的配置给Agent，Agent返回给前端结果时，也携带metadata信息
+- 除gemini以为流的输出Bug修复，adk和a2a的包问题：https://github.com/johnson7788/MultiAgentPPT/blob/stream/backend/birthday_planner/README.md
 
 ## 使用界面截图展示
 
