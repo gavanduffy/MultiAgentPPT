@@ -13,6 +13,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+logger = logging.getLogger(__name__)
 
 import click
 import uvicorn
@@ -81,24 +82,31 @@ def main(host, port, agent_prompt_file, model_name, provider, mcp_config_path, a
     )
     # 支持流式的SSE模式的输出
     if streaming:
+        logger.info("使用 SSE 流式输出模式")
         run_config = RunConfig(
             streaming_mode=StreamingMode.SSE,
             max_llm_calls=500
         )
     else:
+        logger.info("使用普通输出模式")
         run_config = RunConfig(
             streaming_mode=StreamingMode.NONE,
             max_llm_calls=500
         )
+
+    # 初始化Agent执行器
     agent_executor = ADKAgentExecutor(runner, agent_card, run_config)
 
+    # 初始化请求处理器
     request_handler = DefaultRequestHandler(
         agent_executor=agent_executor, task_store=InMemoryTaskStore()
     )
 
+    # 构建A2A应用
     a2a_app = A2AStarletteApplication(
         agent_card=agent_card, http_handler=request_handler
     )
+
     app = a2a_app.build()
     # CORS
     app.add_middleware(
@@ -107,6 +115,8 @@ def main(host, port, agent_prompt_file, model_name, provider, mcp_config_path, a
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    logger.info(f"服务启动中，监听地址: http://{host}:{port}")
+    # 启动 uvicorn 服务器
     uvicorn.run(app, host=host, port=port)
 
 if __name__ == "__main__":

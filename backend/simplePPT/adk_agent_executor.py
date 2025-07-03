@@ -30,6 +30,7 @@ from a2a.types import (
     TaskState,
     TaskStatus,
     TextPart,
+    DataPart,
     UnsupportedOperationError,
 )
 from a2a.utils.errors import ServerError
@@ -92,7 +93,7 @@ class ADKAgentExecutor(AgentExecutor):
                     ),
                 )
             else:
-                logger.debug("Skipping event")
+                logger.info(f"Skipping event, {event}")
 
     async def execute(
         self,
