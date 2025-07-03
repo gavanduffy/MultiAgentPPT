@@ -30,6 +30,7 @@ from a2a.types import (
     TaskState,
     TaskStatus,
     TextPart,
+    DataPart,
     UnsupportedOperationError,
 )
 from a2a.utils.errors import ServerError
@@ -63,12 +64,14 @@ class ADKAgentExecutor(AgentExecutor):
         new_message: types.Content,
         session_id: str,
         task_updater: TaskUpdater,
+        metadata: dict | None = None
     ) -> None:
         # The call to self._upsert_session was returning a coroutine object,
         # leading to an AttributeError when trying to access .id on it directly.
         # We need to await the coroutine to get the actual session object.
+        # metadata用户传入的原数据
         session_obj = await self._upsert_session(
-            session_id,
+            session_id,metadata
         )
         logger.debug(f"收到请求信息: {new_message}")
         # Update session_id with the ID from the resolved session object
@@ -78,9 +81,14 @@ class ADKAgentExecutor(AgentExecutor):
         async for event in self._run_agent(session_id, new_message):
 
             if event.is_final_response():
+                final_session = await self.runner.session_service.get_session(
+                    app_name=self.runner.app_name, user_id="self", session_id=session_id
+                )
+                print("最终的session中的结果final_session中的state: ", final_session.state)
+                final_metadata = final_session.state.get("metadata")
                 parts = convert_genai_parts_to_a2a(event.content.parts)
                 logger.debug("Yielding final response: %s", parts)
-                await task_updater.add_artifact(parts)
+                await task_updater.add_artifact(parts, metadata=final_metadata)
                 await task_updater.complete()
                 break
             if not event.get_function_calls():
@@ -92,7 +100,7 @@ class ADKAgentExecutor(AgentExecutor):
                     ),
                 )
             else:
-                logger.debug("Skipping event")
+                logger.info(f"Skipping event, {event}")
 
     async def execute(
         self,
@@ -111,6 +119,7 @@ class ADKAgentExecutor(AgentExecutor):
             ),
             context.context_id,
             updater,
+            metadata=context.message.metadata
         )
         logger.debug("[adk agent ] 执行完成，退出")
 
@@ -118,7 +127,7 @@ class ADKAgentExecutor(AgentExecutor):
         # Ideally: kill any ongoing tasks.
         raise ServerError(error=UnsupportedOperationError())
 
-    async def _upsert_session(self, session_id: str):
+    async def _upsert_session(self, session_id: str, metadata={}):
         """
         Retrieves a session if it exists, otherwise creates a new one.
         Ensures that async session service methods are properly awaited.
@@ -128,7 +137,7 @@ class ADKAgentExecutor(AgentExecutor):
         )
         if session is None:
             session = await self.runner.session_service.create_session(
-                app_name=self.runner.app_name, user_id="self", session_id=session_id
+                app_name=self.runner.app_name, user_id="self", session_id=session_id, state={"metadata":metadata}
             )
         # According to ADK InMemorySessionService, create_session should always return a Session object.
         if session is None:

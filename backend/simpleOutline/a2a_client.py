@@ -20,9 +20,11 @@ async def httpx_client():
             'message': {
                 'role': 'user',
                 'parts': [{'type': 'text', 'text': prompt}],
-                'messageId': request_id
+                'messageId': request_id,
+                'metadata': {"user_data": "hello"}
             }
         }
+        print(f"发送message信息: {send_message_payload}")
         # 流式请求的示例
         streaming_request = SendStreamingMessageRequest(
             id=request_id,
