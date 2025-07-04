@@ -30,7 +30,7 @@ def my_before_model_callback(callback_context: CallbackContext, llm_request: Llm
 summary_writer_agent = Agent(
     model=create_model(model=SUMMARY_AGENT_CONFIG["model"], provider=SUMMARY_AGENT_CONFIG["provider"]),
     name="SummaryAgent",
-    description="专业的医学文章撰写和内容整合医学专家",
+    description="专业的文章撰写和内容整合专家",
     instruction=prompt.PPT_AGENT_PROMPT,
     before_model_callback=my_before_model_callback
 )
