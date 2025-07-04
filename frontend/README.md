@@ -206,7 +206,7 @@ presentation/
 
 
 
-# src/components/presentation/dashboard/PresentationGenerationManager.tsx
+# 生成ppt内容： src/components/presentation/dashboard/PresentationGenerationManager.tsx
 /api/presentation/outline
 
 
