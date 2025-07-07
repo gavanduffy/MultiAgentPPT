@@ -42,9 +42,15 @@ def before_model_callback(callback_context: CallbackContext, llm_request: LlmReq
 def after_model_callback(callback_context: CallbackContext, llm_response: LlmResponse) -> Optional[LlmResponse]:
     # 1. 检查用户输入，注意如果是llm的stream模式，那么response_data的结果是一个token的结果，还有可能是工具的调用
     agent_name = callback_context.agent_name
-    response_parts = len(llm_response.content.parts)
+    response_parts = llm_response.content.parts
+    part_texts =[]
+    for one_part in response_parts:
+        part_text = one_part.text
+        if part_text is not None:
+            part_texts.append(part_text)
+    part_text_content = "\n".join(part_texts)
     metadata = callback_context.state.get("metadata")
-    print(f"调用了{agent_name}模型后的callback, 这次模型回复{response_parts}条信息,metadata数据为：{metadata},回复内容是: {llm_response.content.parts}")
+    print(f"调用了{agent_name}模型后的callback, 这次模型回复{response_parts}条信息,metadata数据为：{metadata},回复内容是: {part_text_content}")
     #清空contents,不需要上一步的拆分topic的记录, 不能在这里清理，否则，每次调用工具都会清除记忆，白操作了
     # llm_request.contents.clear()
     # 返回 None，继续调用 LLM
