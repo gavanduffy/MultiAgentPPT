@@ -831,3 +831,6 @@ export async function POST(req: Request) {
 }
 
 ```
+
+## 解析模型的返回数据流
+src/components/presentation/utils/parser.ts中的函数parseChunk

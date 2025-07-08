@@ -47,6 +47,9 @@ python main.py
 python main_api.py
 ```
 
+## 注意需要修改tools.py中的搜索引擎
+slide_agent/sub_agents/research_topic/tools.py
+
 ---
 
 ## 📁 项目结构简要说明
