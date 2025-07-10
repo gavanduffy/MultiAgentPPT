@@ -1,7 +1,9 @@
 import logging
 import os
+import litellm
 from google.adk.agents import LlmAgent
 from google.adk.models.lite_llm import LiteLlm
+litellm._turn_on_debug()
 
 def create_model(model:str, provider: str):
     """

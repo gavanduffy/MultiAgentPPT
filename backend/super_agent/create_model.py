@@ -6,8 +6,10 @@
 # @Contact : github: johnson7788
 # @Desc  :
 import os
+import litellm
 from google.adk.models.lite_llm import LiteLlm
 from dotenv import load_dotenv
+litellm._turn_on_debug()
 
 
 load_dotenv()

@@ -6,8 +6,10 @@
 # @Contact : github: johnson7788
 # @Desc  : little llm 不要设置timeout，超过一定时间会断
 import os
+import litellm
 from google.adk.models.lite_llm import LiteLlm
 from dotenv import load_dotenv
+litellm._turn_on_debug()
 
 load_dotenv()
 def create_model(model:str, provider: str):
