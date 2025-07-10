@@ -150,10 +150,10 @@ async def proxy_request(request: Request):
 
         for attempt in range(max_retries):
             try:
-                logger.log(f"尝试连接服务器 (第 {attempt + 1} 次)")
+                logger.log(f"尝试连接LLM服务器 (第 {attempt + 1} 次)")
 
                 # 增加超时时间和重试机制
-                timeout = httpx.Timeout(60.0, connect=10.0)
+                timeout = httpx.Timeout(600.0, connect=10.0)
 
                 async with httpx.AsyncClient(
                         timeout=timeout,
@@ -196,7 +196,7 @@ async def proxy_request(request: Request):
                         # 处理流式响应
                         async for line in response.aiter_lines():
                             if line.strip():  # 忽略空行
-                                logger.log(f"收到数据: {line[:100]}...")
+                                logger.log(f"收到数据: {line}")
                                 lines.append(line + "\n")
                                 yield line + "\n"
 
@@ -211,7 +211,7 @@ async def proxy_request(request: Request):
                     retry_delay *= 2
                     continue
                 else:
-                    error_msg = f"data: {{'error': '服务器连接失败，已重试 {max_retries} 次'}}\n\n"
+                    error_msg = f"data: 'error': '服务器连接失败，已重试 {max_retries} 次'\n\n"
                     yield error_msg
                     return
 
@@ -223,7 +223,7 @@ async def proxy_request(request: Request):
                     retry_delay *= 2
                     continue
                 else:
-                    error_msg = f"data: {{'error': '请求超时，已重试 {max_retries} 次'}}\n\n"
+                    error_msg = f"data: 'error': '请求超时，已重试 {max_retries} 次'\n\n"
                     yield error_msg
                     return
 
@@ -235,7 +235,7 @@ async def proxy_request(request: Request):
                     retry_delay *= 2
                     continue
                 else:
-                    error_msg = f"data: {{'error': '未知错误: {str(e)}'}}\n\n"
+                    error_msg = f"data: 'error': '未知错误: {str(e)}'\n\n"
                     yield error_msg
                     return
 
