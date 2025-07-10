@@ -45,6 +45,7 @@ docker run --name postgresdb -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_
 1. 安装依赖(当前frontend目录下)：
 
    ```bash
+   cp env_template .env
    npm install -g pnpm
    pnpm install
    ```
