@@ -13,6 +13,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+logger = logging.getLogger(__name__)
 
 import click
 import uvicorn
@@ -40,8 +41,8 @@ from slide_agent.agent import root_agent
 @click.option("--agent_url", "agent_url", default="",help="Agent Card中对外展示和访问的地址")
 def main(host, port, agent_url=""):
     # 每个小的Agent都流式的输出结果
-    streaming = os.environ.get("STREAMING") == "true"
-    last_agent_output = True # 只有最后1个agent的输出，用于测试
+    show_agent = ["SummaryAgent"]  #哪个Agent会作为最后的ppt的Agent的输出
+    streaming = False
     agent_card_name = "Writter PPT Agent"
     agent_name = "writter_agent"
     agent_description = "An agent that can help writer medical ppt"
@@ -72,17 +73,18 @@ def main(host, port, agent_url=""):
         memory_service=InMemoryMemoryService(),
     )
     if streaming:
-        # 支持流式的SSE模式的输出
+        logger.info("使用 SSE 流式输出模式")
         run_config = RunConfig(
             streaming_mode=StreamingMode.SSE,
             max_llm_calls=500
         )
     else:
+        logger.info("使用普通输出模式")
         run_config = RunConfig(
             streaming_mode=StreamingMode.NONE,
             max_llm_calls=500
         )
-    agent_executor = ADKAgentExecutor(runner, agent_card, run_config, last_agent_output)
+    agent_executor = ADKAgentExecutor(runner, agent_card, run_config, show_agent)
 
     request_handler = DefaultRequestHandler(
         agent_executor=agent_executor, task_store=InMemoryTaskStore()
@@ -99,6 +101,8 @@ def main(host, port, agent_url=""):
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    logger.info(f"服务启动中，监听地址: http://{host}:{port}")
+    # 启动 uvicorn 服务器
     uvicorn.run(app, host=host, port=port)
 
 if __name__ == "__main__":

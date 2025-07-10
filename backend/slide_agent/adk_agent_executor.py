@@ -54,14 +54,14 @@ def extract_agent_names(agent: BaseAgent, names=None):
 class ADKAgentExecutor(AgentExecutor):
     """An AgentExecutor that runs an ADK-based Agent."""
 
-    def __init__(self, runner: Runner, card: AgentCard, run_config,last_agent_output):
+    def __init__(self, runner: Runner, card: AgentCard, run_config, show_agent):
         self.runner = runner
         self._card = card
 
         self._running_sessions = {}
         self.run_config = run_config
-        # 用于测试
-        self.last_agent_output = last_agent_output
+        # show_agent代表和前端联动，显示xml的ppt的结果
+        self.show_agent = show_agent
 
     def _run_agent(
         self, session_id, new_message: types.Content
@@ -76,12 +76,17 @@ class ADKAgentExecutor(AgentExecutor):
         new_message: types.Content,
         session_id: str,
         task_updater: TaskUpdater,
+        metadata: dict | None = None
     ) -> None:
         # The call to self._upsert_session was returning a coroutine object,
         # leading to an AttributeError when trying to access .id on it directly.
         # We need to await the coroutine to get the actual session object.
+        # metadata用户传入的原数据
+        if metadata is None:
+            # 没有传入元数据，创建一个空字典
+            metadata = {}
         session_obj = await self._upsert_session(
-            session_id,
+            session_id,metadata
         )
         logger.debug(f"收到请求信息: {new_message}")
         # Update session_id with the ID from the resolved session object
@@ -92,42 +97,49 @@ class ADKAgentExecutor(AgentExecutor):
         agent_names = extract_agent_names(self.runner.agent)
         agent_names = list(agent_names)
         async for event in self._run_agent(session_id, new_message):
-            if self.last_agent_output:
-                logger.info("触发了last_agent_output，只有最后1个agent的输出被用，其它的不输出，跳过")
-                if not event.is_final_response():
-                    continue
-                agent_author = event.author
+            agent_author = event.author
+            if agent_author in self.show_agent:
                 logger.info(f"[adk executor] {agent_author}完成")
-                if agent_author == "SummaryAgent":
+                if event.content and event.content.parts:
                     # 最后一个agent的输出了，输出成status
                     await task_updater.update_status(
                         TaskState.working,
                         message=task_updater.new_agent_message(
-                            convert_genai_parts_to_a2a(event.content.parts),
+                            convert_genai_parts_to_a2a(event.content.parts), metadata={"author": agent_author, "show": True}
                         ),
                     )
-                    task_updater.complete()  # 这个会关掉event的Queue
-                    break
+                    print(f"final_session中的parts: {event.content.parts}")
+                    # await task_updater.complete()  # 这个会关掉event的Queue
+                    # break
                 else:
+                    print(f"event.content没有结果，跳过, Agent是: {agent_author}, event是: {event}")
                     continue
-            if event.is_final_response():
+            elif not event.content or not event.content.parts:
+                print(f"event.content没有结果，跳过, Agent是: {agent_author}, event是: {event}")
+                continue
+            elif event.is_final_response():
+                final_session = await self.runner.session_service.get_session(
+                    app_name=self.runner.app_name, user_id="self", session_id=session_id
+                )
+                print("最终的session中的结果final_session中的state: ", final_session.state)
+                final_metadata = final_session.state.get("metadata")
                 agent_author = event.author
                 if agent_author in agent_names:
                     logger.info(f"[adk executor] {agent_author}完成")
                     agent_names.remove(agent_author)
                 parts = convert_genai_parts_to_a2a(event.content.parts)
                 logger.info("返回最终的结果: %s", parts)
-                await task_updater.add_artifact(parts)
+                await task_updater.add_artifact(parts=parts,metadata={"author": agent_author})
                 if not agent_names:
                     # 说明任务整体完成了，没有要进行其它任务的Agent了，所有Agent都完成了自己的任务
                     await task_updater.complete()  # 这个会关掉event的Queue
                     break
-            if event.get_function_calls():
+            elif event.get_function_calls():
                 logger.info(f"触发了工具调用。。。返回DataPart数据, {event}")
                 await task_updater.update_status(
                     TaskState.working,
                     message=task_updater.new_agent_message(
-                        convert_genai_parts_to_a2a(event.content.parts),
+                        convert_genai_parts_to_a2a(event.content.parts),metadata={"author": agent_author}
                     ),
                 )
             elif event.get_function_responses():
@@ -135,7 +147,7 @@ class ADKAgentExecutor(AgentExecutor):
                 await task_updater.update_status(
                     TaskState.working,
                     message=task_updater.new_agent_message(
-                        convert_genai_parts_to_a2a(event.content.parts),
+                        convert_genai_parts_to_a2a(event.content.parts), metadata={"author": agent_author}
                     ),
                 )
             else:
@@ -143,7 +155,7 @@ class ADKAgentExecutor(AgentExecutor):
                 await task_updater.update_status(
                     TaskState.working,
                     message=task_updater.new_agent_message(
-                        convert_genai_parts_to_a2a(event.content.parts),
+                        convert_genai_parts_to_a2a(event.content.parts),metadata={"author": agent_author}
                     ),
                 )
 
@@ -164,6 +176,7 @@ class ADKAgentExecutor(AgentExecutor):
             ),
             context.context_id,
             updater,
+            metadata=context.message.metadata
         )
         logger.info("[adk executor] Agent执行完成退出")
 
@@ -171,7 +184,7 @@ class ADKAgentExecutor(AgentExecutor):
         # Ideally: kill any ongoing tasks.
         raise ServerError(error=UnsupportedOperationError())
 
-    async def _upsert_session(self, session_id: str):
+    async def _upsert_session(self, session_id: str, metadata={}):
         """
         Retrieves a session if it exists, otherwise creates a new one.
         Ensures that async session service methods are properly awaited.
@@ -181,7 +194,7 @@ class ADKAgentExecutor(AgentExecutor):
         )
         if session is None:
             session = await self.runner.session_service.create_session(
-                app_name=self.runner.app_name, user_id="self", session_id=session_id
+                app_name=self.runner.app_name, user_id="self", session_id=session_id, state={"metadata":metadata}
             )
         # According to ADK InMemorySessionService, create_session should always return a Session object.
         if session is None:
