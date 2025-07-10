@@ -42,9 +42,10 @@ https://github.com/user-attachments/assets/a21dbd49-75b8-4822-bcec-a75b581d9c60
 docker run --name postgresdb -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=welcome -d postgres
 ```
 
-1. 安装依赖：
+1. 安装依赖(当前frontend目录下)：
 
    ```bash
+   npm install -g pnpm
    pnpm install
    ```
 
