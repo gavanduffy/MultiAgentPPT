@@ -108,6 +108,10 @@ export class SlideParser {
   // Keep track of the latest content for generating mark
   private lastTextContent = "";
   private latestContent = "";
+    // 移除 totalProcessedLength 和 lastInputLength，因为它们不再需要用于判断输入类型
+
+  // Track the raw, current content of the buffer for generating mark
+  private currentBufferContent = ""; // 用于 shouldHaveGeneratingMark 的整个 buffer 内容
 
   /**
    * Parse a chunk of XML data
@@ -115,36 +119,22 @@ export class SlideParser {
    * @returns Newly parsed slides if any
    */
   public parseChunk(chunk: string): PlateSlide[] {
-    // For generating mark tracking, store the latest content
-    this.latestContent = chunk;
+    console.log("Received new chunk for parsing:", chunk);
 
-    // Check if this is a completely new chunk or includes previous data
-    const isFullContent =
-      chunk.length >= this.lastInputLength &&
-      chunk.substring(0, this.lastInputLength) ===
-        this.buffer.substring(0, this.lastInputLength);
+    // 简单地将新的 chunk 追加到内部 buffer
+    this.buffer += chunk;
+    this.currentBufferContent = this.buffer; // 更新完整的 buffer 内容供生成标记使用
 
-    // If we're getting the full content (previous + new),
-    // we only want to process what's new
-    if (isFullContent && this.lastInputLength > 0) {
-      // Only add the new part to our buffer
-      this.buffer = this.buffer + chunk.substring(this.lastInputLength);
-    } else {
-      // This is a new, unrelated chunk - reset and process from scratch
-      this.buffer = chunk;
-    }
+    console.log("Current internal buffer:", this.buffer);
 
-    // Update the tracking of our input size
-    this.lastInputLength = chunk.length;
-
-    // Extract complete sections
+    // 提取并处理完整的 Section
     this.extractCompleteSections();
 
-    // Process completed sections
+    // 根据已完成的 Section 更新 slides
     const newSlides = this.processSections();
 
-    // Find the last text content for tracking the generating mark
-    this.lastTextContent = this.findLastTextContent(chunk);
+    // 更新 findLastTextContent 的来源为整个 buffer
+    // this.lastTextContent = this.findLastTextContent(this.currentBufferContent); // 如果需要的话，更新这个
 
     return newSlides;
   }

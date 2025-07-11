@@ -73,6 +73,9 @@ interface PresentationState {
   selectAllPresentations: (ids: string[]) => void;
   deselectAllPresentations: () => void;
   togglePresentationSelection: (id: string) => void;
+  detailLogs: { data: any, metadata: any }[];
+  setDetailLogs: (logs: { data: any, metadata: any }[]) => void;
+  appendDetailLog: (log: { data: any, metadata: any }) => void;
 }
 
 export const usePresentationState = create<PresentationState>((set) => ({
@@ -97,6 +100,9 @@ export const usePresentationState = create<PresentationState>((set) => ({
   isPresenting: false,
   currentSlideIndex: 0,
   isThemeCreatorOpen: false,
+  detailLogs: [],
+  setDetailLogs: (logs) => set({ detailLogs: logs }),
+  appendDetailLog: (log) => set((state) => ({ detailLogs: [...state.detailLogs, log] })),
 
   // Generation states
   shouldStartOutlineGeneration: false,
@@ -105,6 +111,7 @@ export const usePresentationState = create<PresentationState>((set) => ({
   isGeneratingPresentation: false,
 
   setSlides: (slides) => {
+    console.log("[setSlides] slides:", slides);
     set({ slides });
   },
   setCurrentPresentation: (id, title) =>

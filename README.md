@@ -50,6 +50,11 @@ MultiAgentPPT 利用多智能体架构实现从主题输入到完整演示文稿
 
 ![流式生成PPT](docs/4流式生成PPT.png)
 
+### 5. 对于多Agent生成PPT，slide_agent中，添加进度细节展示
+![process_detail1.png](docs/process_detail1.png)
+![process_detail2.png](docs/process_detail2.png)
+![process_detail3.png](docs/process_detail3.png)
+![process_detail4.png](docs/process_detail4.png)
 
 ## 📊 并发的多Agent的协作流程
 ```mermaid

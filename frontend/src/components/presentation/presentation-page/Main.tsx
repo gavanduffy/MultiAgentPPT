@@ -25,6 +25,7 @@ import {
 } from "@/app/_actions/presentation/presentationActions";
 import { type PlateNode, type PlateSlide } from "../utils/parser";
 import { type ImageModelList } from "@/app/_actions/image/generate";
+import { DetailPanel } from "./DetailPanel";
 
 export default function PresentationPage() {
   const params = useParams();
@@ -42,7 +43,11 @@ export default function PresentationPage() {
     setPresentationStyle,
     setLanguage,
     theme,
+    detailLogs,
   } = usePresentationState();
+  // 保留 detailVisible 和 detailExpanded 的 useState
+  const [detailVisible, setDetailVisible] = useState(false);
+  const [detailExpanded, setDetailExpanded] = useState(false);
 
   useEffect(() => {
     if (isGeneratingPresentation) {
@@ -227,23 +232,42 @@ export default function PresentationPage() {
     return null;
   })();
 
+  // 控制detail的显示和展开
+  useEffect(() => {
+    if (isGeneratingPresentation) {
+      setDetailVisible(true);
+      setDetailExpanded(true);
+    } else {
+      setDetailExpanded(false);
+    }
+  }, [isGeneratingPresentation]);
+
   if (isLoading) {
     return <LoadingState />;
   }
 
   return (
-    <PresentationLayout
-      isLoading={isLoading}
-      themeData={currentThemeData ?? undefined}
-    >
-      <div className="mx-auto max-w-[90%] space-y-8 p-8 pt-16">
-        <div className="space-y-8">
-          <PresentationSlidesView
-            handleSlideChange={handleSlideChange}
-            isGeneratingPresentation={isGeneratingPresentation}
-          />
+    <>
+      <DetailPanel
+        visible={detailVisible}
+        expanded={detailExpanded}
+        logs={detailLogs}
+        onExpand={() => setDetailExpanded(true)}
+        onCollapse={() => setDetailExpanded(false)}
+      />
+      <PresentationLayout
+        isLoading={isLoading}
+        themeData={currentThemeData ?? undefined}
+      >
+        <div className="mx-auto max-w-[90%] space-y-8 p-8 pt-16">
+          <div className="space-y-8">
+            <PresentationSlidesView
+              handleSlideChange={handleSlideChange}
+              isGeneratingPresentation={isGeneratingPresentation}
+            />
+          </div>
         </div>
-      </div>
-    </PresentationLayout>
+      </PresentationLayout>
+    </>
   );
 }

@@ -67,6 +67,7 @@ export const PresentationSlidesView = ({
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  console.log("[PresentationSlidesView] items:", items);
   return (
     <DndContext
       sensors={sensors}

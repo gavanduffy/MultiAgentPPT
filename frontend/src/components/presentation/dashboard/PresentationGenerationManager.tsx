@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useCompletion } from "ai/react";
 import { toast } from "sonner";
 import { usePresentationState } from "@/states/presentation-state";
 import { SlideParser } from "../utils/parser";
 import { updatePresentation } from "@/app/_actions/presentation/presentationActions";
+import { useCompletion } from "ai/react";
 
 export function PresentationGenerationManager() {
   const {
@@ -21,6 +21,7 @@ export function PresentationGenerationManager() {
     setOutline,
     setSlides,
     setIsGeneratingPresentation,
+    setDetailLogs, // 新增解构
   } = usePresentationState();
 
   // Create a ref for the streaming parser to persist between renders
@@ -40,6 +41,7 @@ export function PresentationGenerationManager() {
   // Function to update slides using requestAnimationFrame
   const updateSlidesWithRAF = (): void => {
     // Always check for the latest slides in the buffer
+    console.log("RAF executed: updating slides", slidesBufferRef.current);
     if (slidesBufferRef.current !== null) {
       setSlides(slidesBufferRef.current);
       slidesBufferRef.current = null;
@@ -176,73 +178,118 @@ export function PresentationGenerationManager() {
     void startOutlineGeneration();
   }, [shouldStartOutlineGeneration]);
 
-  const { completion: presentationCompletion, complete: generatePresentation } =
-    useCompletion({
-      api: "/api/presentation/generate",
-      onFinish: (_prompt, _completion) => {
-        const { currentPresentationId, currentPresentationTitle, theme } =
-          usePresentationState.getState();
-        const parser = streamingParserRef.current;
-        parser.reset();
-        parser.parseChunk(_completion);
-        parser.finalize();
-        parser.clearAllGeneratingMarks();
-        const slides = parser.getAllSlides();
-        slidesBufferRef.current = slides;
-
-        requestAnimationFrame(updateSlidesWithRAF);
-
-        if (currentPresentationId) {
-          void updatePresentation({
-            id: currentPresentationId,
-            content: { slides: slides },
-            title: currentPresentationTitle ?? "",
-            theme,
-          });
+  // 流式生成演示文稿的函数
+  const generatePresentationStream = async ({
+    title,
+    outline,
+    language,
+    tone,
+  }: {
+    title: string;
+    outline: string[];
+    language: string;
+    tone?: string;
+  }) => {
+    const parser = streamingParserRef.current;
+    parser.reset();
+    setDetailLogs([]); // 替换
+    try {
+      const response = await fetch("/api/presentation/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, outline, language, tone }),
+      });
+      if (!response.body) throw new Error("No response body");
+  
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let bufferedText = "";
+      let done = false;
+      while (!done) {
+        const { value, done: streamDone } = await reader.read();
+        done = streamDone;
+  
+        if (value) {
+          bufferedText += decoder.decode(value, { stream: true });
+  
+          let lines = bufferedText.split("\n");
+          bufferedText = lines.pop() ?? "";
+  
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const { type, data, metadata } = JSON.parse(line);
+              if (type === "status-update") {
+                parser.parseChunk(data);
+              } else {
+                setDetailLogs([
+                  ...usePresentationState.getState().detailLogs,
+                  { data, metadata },
+                ]);
+              }
+              //注意：⚠️在 setSlides 前强制生成新数组引用，如果同一个引用，它就不会触发 items.map(...) 渲染。
+              const slides = parser.getAllSlides().map(slide => ({ ...slide }));
+              slidesBufferRef.current = slides;
+              slidesRafIdRef.current = requestAnimationFrame(updateSlidesWithRAF);
+            } catch (e) {
+              console.error("Failed to parse JSON line:", line, e);
+            }
+          }
         }
-
-        setIsGeneratingPresentation(false);
-        setShouldStartPresentationGeneration(false);
-        // Cancel any pending animation frame
-        if (slidesRafIdRef.current !== null) {
-          cancelAnimationFrame(slidesRafIdRef.current);
-          slidesRafIdRef.current = null;
+      }
+  
+      // 处理剩余行
+      if (bufferedText.trim()) {
+        try {
+          const { type, data, metadata } = JSON.parse(bufferedText.trim());
+          if (type === "status-update") {
+            parser.parseChunk(data);
+          } else {
+            setDetailLogs([
+              ...usePresentationState.getState().detailLogs,
+              { data, metadata },
+            ]);
+          }
+        } catch (e) {
+          console.error("Failed to parse final stream chunk:", bufferedText.trim(), e);
         }
-      },
-      onError: (error) => {
-        toast.error("Failed to generate presentation: " + error.message);
-        resetGeneration();
-        streamingParserRef.current.reset();
-
-        // Cancel any pending animation frame
-        if (slidesRafIdRef.current !== null) {
-          cancelAnimationFrame(slidesRafIdRef.current);
-          slidesRafIdRef.current = null;
-        }
-      },
-    });
-
-  useEffect(() => {
-    if (presentationCompletion) {
-      try {
-        streamingParserRef.current.reset();
-        streamingParserRef.current.parseChunk(presentationCompletion);
-        streamingParserRef.current.finalize();
-        const allSlides = streamingParserRef.current.getAllSlides();
-
-        // Store the latest slides in the buffer
-        slidesBufferRef.current = allSlides;
-
-        // Only schedule a new frame if one isn't already pending
-        if (slidesRafIdRef.current === null) {
-          slidesRafIdRef.current = requestAnimationFrame(updateSlidesWithRAF);
-        }
-      } catch (error) {
-        console.error("Error processing presentation XML:", error);
-        toast.error("Error processing presentation content");
+      }
+  
+      parser.finalize();
+      parser.clearAllGeneratingMarks();
+  
+      const slides = parser.getAllSlides();
+      console.log("slides 内容：", slides);
+      slidesBufferRef.current = slides;
+      slidesRafIdRef.current = requestAnimationFrame(updateSlidesWithRAF);
+  
+      const { currentPresentationId, currentPresentationTitle, theme } = usePresentationState.getState();
+      if (currentPresentationId) {
+        void updatePresentation({
+          id: currentPresentationId,
+          content: { slides: slides },
+          title: currentPresentationTitle ?? "",
+          theme,
+        });
+      }
+  
+      setIsGeneratingPresentation(false);
+      setShouldStartPresentationGeneration(false);
+      if (slidesRafIdRef.current !== null) {
+        cancelAnimationFrame(slidesRafIdRef.current);
+        slidesRafIdRef.current = null;
+      }
+    } catch (error: any) {
+      toast.error("Failed to generate presentation: " + error.message);
+      resetGeneration();
+      parser.reset();
+      if (slidesRafIdRef.current !== null) {
+        cancelAnimationFrame(slidesRafIdRef.current);
+        slidesRafIdRef.current = null;
       }
     }
-  }, [presentationCompletion]);
+  };
+  
 
   useEffect(() => {
     if (shouldStartPresentationGeneration) {
@@ -263,14 +310,12 @@ export function PresentationGenerationManager() {
       if (slidesRafIdRef.current === null) {
         slidesRafIdRef.current = requestAnimationFrame(updateSlidesWithRAF);
       }
-
-      void generatePresentation(presentationInput ?? "", {
-        body: {
-          title: presentationInput ?? currentPresentationTitle ?? "",
-          outline,
-          language,
-          tone: presentationStyle,
-        },
+      // 启动流式生成
+      void generatePresentationStream({
+        title: presentationInput ?? currentPresentationTitle ?? "",
+        outline,
+        language,
+        tone: presentationStyle,
       });
     }
   }, [shouldStartPresentationGeneration]);

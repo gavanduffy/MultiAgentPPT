@@ -19,6 +19,7 @@ interface SlideWithId extends PlateSlide {
 
 export function usePresentationSlides() {
   const { slides, setSlides, isPresenting } = usePresentationState();
+  console.log("usePresentationSlide获取到的slides是:",slides)
 
   // Configure DnD sensors
   const sensors = useSensors(
