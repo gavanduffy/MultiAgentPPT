@@ -41,8 +41,8 @@ from slide_agent.agent import root_agent
 @click.option("--agent_url", "agent_url", default="",help="Agent Card中对外展示和访问的地址")
 def main(host, port, agent_url=""):
     # 每个小的Agent都流式的输出结果
-    show_agent = ["SummaryAgent"]  #哪个Agent会作为最后的ppt的Agent的输出
     streaming = False
+    show_agent = ["SummaryAgent"]  #哪个Agent会作为最后的ppt的Agent的输出
     agent_card_name = "Writter PPT Agent"
     agent_name = "writter_agent"
     agent_description = "An agent that can help writer medical ppt"
@@ -53,7 +53,7 @@ def main(host, port, agent_url=""):
         tags=["writter", "ppt"],
         examples=["writter ppt agent"],
     )
-
+    # 注意⚠️：这里Agent使用流式的输出，但是LLM模型不使用流式的输出，因为LLM使用流式的输出，在split topic时Json解析出问题
     agent_card = AgentCard(
         name=agent_card_name,
         description=agent_description,
@@ -72,6 +72,8 @@ def main(host, port, agent_url=""):
         session_service=InMemorySessionService(),
         memory_service=InMemoryMemoryService(),
     )
+
+    # 根据环境变量决定是否启用流式输出
     if streaming:
         logger.info("使用 SSE 流式输出模式")
         run_config = RunConfig(
@@ -86,13 +88,16 @@ def main(host, port, agent_url=""):
         )
     agent_executor = ADKAgentExecutor(runner, agent_card, run_config, show_agent)
 
+    # 初始化请求处理器
     request_handler = DefaultRequestHandler(
         agent_executor=agent_executor, task_store=InMemoryTaskStore()
     )
 
+    # 构建A2A应用
     a2a_app = A2AStarletteApplication(
         agent_card=agent_card, http_handler=request_handler
     )
+
     app = a2a_app.build()
     # CORS
     app.add_middleware(

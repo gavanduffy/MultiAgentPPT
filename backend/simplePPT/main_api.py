@@ -40,6 +40,7 @@ def main(host, port):
     启动ppt Agent服务，支持流式和非流式输出。
     """
     streaming = os.environ.get("STREAMING") == "true"
+    show_agent = ["ppt_agent"]  #哪个Agent会作为最后的ppt的Agent的输出
     agent_card_name = "ppt Agent"
     agent_name = "ppt_agent"
     agent_description = "Generate the PPT content based on the provided outline. The outline must be provided in order to proceed."
@@ -88,9 +89,7 @@ def main(host, port):
             streaming_mode=StreamingMode.NONE,
             max_llm_calls=500
         )
-
-    # 初始化Agent执行器
-    agent_executor = ADKAgentExecutor(runner, agent_card, run_config)
+    agent_executor = ADKAgentExecutor(runner, agent_card, run_config, show_agent)
 
     # 初始化请求处理器
     request_handler = DefaultRequestHandler(

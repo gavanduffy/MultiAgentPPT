@@ -38,6 +38,7 @@ from a2a.utils.message import new_agent_text_message
 from google.adk.agents.base_agent import BaseAgent
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def extract_agent_names(agent: BaseAgent, names=None):
