@@ -305,6 +305,7 @@ export async function duplicatePresentation(id: string, newTitle?: string) {
             theme: original.presentation.theme,
           },
         },
+        user: { connect: { id: "01" } }
       },
       include: {
         presentation: true,

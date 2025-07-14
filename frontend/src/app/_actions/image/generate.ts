@@ -6,7 +6,7 @@ import { db } from "@/server/db";
 import { utapi } from "@/app/api/uploadthing/core";
 import { UTFile } from "uploadthing/server";
 
-const together = new Together({ apiKey: env.TOGETHER_AI_API_KEY });
+const together = new Together({ apiKey: "hello world" });
 
 export type ImageModelList =
   | "black-forest-labs/FLUX1.1-pro"
@@ -79,6 +79,7 @@ export async function generateImageAction(
       data: {
         url: permanentUrl, // Store the UploadThing URL instead of the Together AI URL
         prompt: prompt,
+        user: { connect: { id: "01" } }
       },
     });
 

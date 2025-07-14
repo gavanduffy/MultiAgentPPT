@@ -74,6 +74,7 @@ export type PlateSlide = {
   content: PlateNode[];
   rootImage?: {
     url: string;
+    query: string; // 新增字段，默认为空字符串
   };
   layoutType?: LayoutType | undefined;
   alignment?: "start" | "center" | "end";
@@ -520,7 +521,7 @@ export class SlideParser {
       const src = imgNode.attributes.src;
 
       if (src) {
-        rootImage = { url: src };
+        rootImage = { url: src, query: "" };
       }
     }
 

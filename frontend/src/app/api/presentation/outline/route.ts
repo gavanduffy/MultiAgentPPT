@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 // app/a2aexample/api/outline/route.ts
-import { A2AClient } from "@a2a-js/sdk";
+import { A2AClient, Message } from "@a2a-js/sdk";
 import crypto from "node:crypto";
 import {LangChainAdapter} from "ai"; // crypto is a built-in Node.js module
 
@@ -43,7 +43,7 @@ async function* generateOutlineStream(serverUrl: string, content: string) {
   const client = new A2AClient(serverUrl);
 
   const messageId = generateId();
-  const message = {
+  const message: Message = {
     messageId,
     kind: "message",
     role: "user",
@@ -85,7 +85,7 @@ async function* generateOutlineStream(serverUrl: string, content: string) {
   } catch (error) {
     console.error("Error communicating with A2A client:", error);
     // Rethrow or yield an error message to the consumer
-    yield `Error: Failed to communicate with agent. ${error.message}`;
+    yield `Error: Failed to communicate with agent. ${error}`;
   }
 }
 export async function POST(request: Request) {

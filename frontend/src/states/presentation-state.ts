@@ -22,6 +22,8 @@ interface PresentationState {
   isPresenting: boolean;
   currentSlideIndex: number;
   isThemeCreatorOpen: boolean;
+  imageGenerationModelOpen: boolean;
+  setImageGenerationModelOpen: (open: boolean) => void;
 
   // Generation states
   shouldStartOutlineGeneration: boolean;
@@ -76,6 +78,7 @@ interface PresentationState {
   detailLogs: { data: any, metadata: any }[];
   setDetailLogs: (logs: { data: any, metadata: any }[]) => void;
   appendDetailLog: (log: { data: any, metadata: any }) => void;
+  
 }
 
 export const usePresentationState = create<PresentationState>((set) => ({
@@ -100,6 +103,8 @@ export const usePresentationState = create<PresentationState>((set) => ({
   isPresenting: false,
   currentSlideIndex: 0,
   isThemeCreatorOpen: false,
+  imageGenerationModelOpen: false,
+  setImageGenerationModelOpen: (open) => set({ imageGenerationModelOpen: open }),
   detailLogs: [],
   setDetailLogs: (logs) => set({ detailLogs: logs }),
   appendDetailLog: (log) => set((state) => ({ detailLogs: [...state.detailLogs, log] })),

@@ -19,6 +19,7 @@ export async function addToFavorites(documentId: string) {
     await db.favoriteDocument.create({
       data: {
         documentId,
+        userId: "01"
       },
     });
 

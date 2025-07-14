@@ -27,6 +27,7 @@ export async function createCustomTheme(formData: ThemeFormData) {
         themeData: validatedData.themeData,
         logoUrl: validatedData.logoUrl,
         isPublic: validatedData.isPublic,
+        user: { connect: { id: "01" } }
       },
     });
 

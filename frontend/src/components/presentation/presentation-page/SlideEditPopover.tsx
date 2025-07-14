@@ -38,7 +38,7 @@ export function SlideEditPopover({ index }: SlideEditPopoverProps) {
       alignment: ContentAlignment;
       rootImage?: {
         query: string;
-        url?: string;
+        url: string;
       };
     }>
   ) => {
