@@ -63,6 +63,7 @@ MultiAgentPPT 利用多智能体架构实现从主题输入到完整演示文稿
 
 ## 📊 并发的多Agent的协作流程（slide_agent + slide_outline)
 ```mermaid
+flowchart TD
     A[用户输入研究内容] --> B[调用 Outline Agent]
     B --> C[MCP 检索资料]
     C --> D[生成大纲]
