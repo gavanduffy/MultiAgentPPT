@@ -21,6 +21,7 @@ MultiAgentPPT 利用多智能体架构实现从主题输入到完整演示文稿
 * Done: 除gemini以为流的输出Bug修复，adk和a2a的包问题：https://github.com/johnson7788/MultiAgentPPT/blob/stream/backend/birthday_planner/README.md~~
 * Done: 图片渲染方面，根据是否为背景图动态切换样式（object-cover 或 object-contain），并在非背景图下展示说明文字。为保证PPT页面唯一性，使用大模型输出中的 page_number 作为唯一标识，替代原先基于标题的方式，以支持内容更新与校对。
 * Done: 使用循环Agent生成每一页PPT，代替直接一次生成所有PPT,这样可以方便生成更多页数PPT，防止LLM的token输出限制。
+* Done：PPTChecker Agent检查每一页生成的PPT质量，实际测试效果很好，请自行修改真实的图片数据和内容RAG数据。
 * Done: 前端显示每个Agent的生成过程的状态。
 * Todo: 多模态的理解图片，图片格式处理（例如方向，大小等检测），用于PPT的不同位置。
 * Todo: metadata数据传输，传输一些前端的配置给Agent，Agent返回给前端结果时，也携带metadata信息
