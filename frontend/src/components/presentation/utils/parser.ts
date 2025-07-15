@@ -74,7 +74,9 @@ export type PlateSlide = {
   content: PlateNode[];
   rootImage?: {
     url: string;
-    query: string; // 新增字段，默认为空字符串
+    query: string; //默认为空字符串
+    background: boolean; //判断是否时背景图片
+    alt: string; //图片的描述信息
   };
   layoutType?: LayoutType | undefined;
   alignment?: "start" | "center" | "end";
@@ -378,6 +380,10 @@ export class SlideParser {
    * This helps maintain the same ID when the section is updated
    */
   private generateSectionIdentifier(sectionNode: XMLNode): string {
+    // 优先使用 page_number 作为唯一标识
+    if (sectionNode.attributes && sectionNode.attributes.page_number) {
+      return `page_number-${sectionNode.attributes.page_number}`;
+    }
     // Try to find a unique heading to identify the section
     const h1Node = sectionNode.children.find(
       (child) => child.tag.toUpperCase() === "H1"
@@ -519,9 +525,14 @@ export class SlideParser {
     if (rootImageNodes.length > 0) {
       const imgNode = rootImageNodes[0]!;
       const src = imgNode.attributes.src;
+      //是否是背景
+      const background_string = imgNode.attributes.background;
+      const background = background_string === "true";
+      //图片的描述
+      const alt = imgNode.attributes.alt;
 
       if (src) {
-        rootImage = { url: src, query: "" };
+        rootImage = { url: src, query: "", background: background, alt:alt};
       }
     }
 

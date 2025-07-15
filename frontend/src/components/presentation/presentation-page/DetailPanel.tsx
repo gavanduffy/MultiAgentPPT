@@ -8,6 +8,7 @@ interface DetailPanelProps {
   logs: { data: any; metadata: any }[];
   onExpand: () => void;
   onCollapse: () => void;
+  isGeneratingPresentation: boolean; 
 }
 
 export const DetailPanel: React.FC<DetailPanelProps> = ({
@@ -16,6 +17,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
   logs,
   onExpand,
   onCollapse,
+  isGeneratingPresentation,
 }) => {
   const [openIndexes, setOpenIndexes] = useState<number[]>([]);
 
@@ -44,7 +46,14 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
           >
             <PanelTopClose className="w-5 h-5" />
           </button>
-          <h2 className="text-lg font-bold mb-4">进度细节</h2>
+          <h2 className="text-lg font-bold mb-4">
+            进度细节
+            <span
+              className={`ml-3 text-base font-normal ${isGeneratingPresentation ? 'animate-blink text-blue-500' : 'text-gray-500'}`}
+            >
+              {isGeneratingPresentation ? '（生成中…）' : '（生成完成）'}
+            </span>
+          </h2>
           <div className="mt-2 space-y-2 text-sm max-h-[70vh] overflow-y-auto">
             {logs.length === 0 ? (
               <div className="text-gray-400">暂无细节</div>
@@ -91,3 +100,14 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
     </div>
   );
 }; 
+
+// 动画样式
+<style jsx global>{`
+@keyframes blink {
+  0%, 100% { opacity: 1; color: #3b82f6; }
+  50% { opacity: 0.3; color: #f59e42; }
+}
+.animate-blink {
+  animation: blink 1s infinite;
+}
+`}</style> 

@@ -39,6 +39,8 @@ export function SlideEditPopover({ index }: SlideEditPopoverProps) {
       rootImage?: {
         query: string;
         url: string;
+        background: boolean;
+        alt: string;
       };
     }>
   ) => {
@@ -64,6 +66,8 @@ export function SlideEditPopover({ index }: SlideEditPopoverProps) {
       rootImage: {
         query: "placeholder image",
         url: "https://placehold.co/600x400",
+        background: false, // 或 true，按你的需求
+        alt: "placeholder image", // 或其他描述
       },
     });
     alert("This would open the image selector in production");

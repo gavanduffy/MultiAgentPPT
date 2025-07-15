@@ -254,6 +254,7 @@ export default function PresentationPage() {
         logs={detailLogs}
         onExpand={() => setDetailExpanded(true)}
         onCollapse={() => setDetailExpanded(false)}
+        isGeneratingPresentation={isGeneratingPresentation}
       />
       <PresentationLayout
         isLoading={isLoading}

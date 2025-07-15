@@ -27,7 +27,7 @@ export default function RootImage({
   layoutType,
   shouldGenerate = true,
 }: {
-  image: { query: string; url?: string };
+  image: { query: string; alt:string, background:boolean, url?: string, };
   slideIndex: number;
   layoutType?: string;
   shouldGenerate?: boolean;
@@ -79,6 +79,8 @@ export default function RootImage({
               rootImage: {
                 query: prompt,
                 url: newImageUrl,
+                alt: "",
+                background: false
               },
             };
           }
@@ -217,8 +219,12 @@ export default function RootImage({
                     {/*  eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={imageUrl ?? image.url}
-                      alt={image.query}
-                      className="h-full w-full object-cover"
+                      alt={image.alt}
+                      className={`h-full w-full ${image.background ? "object-cover" : "object-contain"}`}
+                      style={{
+                        height: image.background !== true && image.alt ? "calc(100% - 32px)" : "100%",
+                        // 32px 用于说明文字实际高度调整
+                      }}
                       onError={(e) => {
                         console.error(
                           "Image failed to load:",
@@ -226,8 +232,29 @@ export default function RootImage({
                           imageUrl ?? image.url
                         );
                         // Optionally set a fallback image or show an error state
-                      }}
+                      }}  
                     />
+                    {/* 非背景图片时显示说明文字 */}
+                    {image.background !== true && image.alt && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: "50%",
+                          bottom: 0,
+                          transform: "translateX(-50%)",
+                          background: "rgba(0,0,0,0.6)",
+                          color: "#fff",
+                          padding: "2px 8px",
+                          borderRadius: "6px 6px 0 0",
+                          fontSize: "0.85rem",
+                          whiteSpace: "pre-line",
+                          maxWidth: "90%",
+                          textAlign: "center",
+                        }}
+                      >
+                        {image.alt}
+                      </div>
+                    )}
                   </div>
                 </PopoverTrigger>
                 <PopoverContent
