@@ -102,56 +102,5 @@ async def run_workflow(outline: str):
 if __name__ == '__main__':
     # 示例调用
     import asyncio
-    outline = """Ivonescimab: Clinical Research and Progress in Non-Small Cell Lung Cancer
-1. Introduction
-Background: Overview of non-small cell lung cancer (NSCLC) and current treatment challenges.
-Rationale for Ivonescimab: Dual targeting of PD-1 and VEGF-A as a novel therapeutic strategy.
-2. Mechanism of Action and Pharmacological Characteristics
-Bispecific Antibody Design: Tetravalent structure targeting PD-1 and VEGF-A.
-Cooperative Binding: Enhanced PD-1 blockade in the presence of VEGF-A.
-Fc-Silencing Mutations: Reduced effector function for improved safety.
-3. Clinical Research Progress
-3.1 Phase 1 Studies
-First-in-Human Trials: Safety, pharmacokinetics, and preliminary efficacy in advanced solid tumors.
-Key findings: Manageable safety profile and promising antitumor activity.
-Dose Escalation: Identification of optimal dosing regimens (e.g., 20 mg/kg Q2W).
-3.2 Phase 2 Studies
-Monotherapy Efficacy: Objective response rates (ORR) in PD-L1-positive NSCLC.
-Subgroup analysis: Higher ORR in patients with PD-L1 TPS ≥50%.
-Combination Therapy: Ivonescimab with chemotherapy in first-line NSCLC.
-Results: Improved ORR and disease control rate (DCR) in squamous and non-squamous subtypes.
-3.3 Phase 3 Studies
-HARMONi-A Trial: Ivonescimab plus chemotherapy vs. chemotherapy alone in EGFR-mutant NSCLC post-TKI failure.
-Primary endpoint: Progression-free survival (PFS) significantly improved (HR 0.46).
-Safety: Manageable toxicity with chemotherapy-related adverse events.
-HARMONi-2 Trial: Ivonescimab vs. pembrolizumab in PD-L1-positive NSCLC.
-Results: Superior PFS with ivonescimab (11.1 vs. 5.8 months).
-4. Comparative Analysis with Other Therapies
-4.1 Ivonescimab vs. Pembrolizumab
-Efficacy: Longer PFS in PD-L1-positive NSCLC.
-Safety: Comparable immune-related adverse events but higher VEGF-related toxicity.
-4.2 Ivonescimab vs. Bevacizumab-Based Regimens
-Mechanistic Advantage: Dual targeting vs. single-pathway inhibition.
-Clinical Outcomes: Higher ORR and PFS in combination with chemotherapy.
-4.3 Ivonescimab vs. Amivantamab
-Target Spectrum: PD-1/VEGF vs. EGFR/MET.
-Patient Subgroups: Ivonescimab benefits broader populations, including EGFR-mutant NSCLC.
-5. Safety and Tolerability
-Common Adverse Events: Proteinuria, hypertension, and hematologic toxicities.
-Grade ≥3 Events: Primarily chemotherapy-related; manageable with dose adjustments.
-Unique Safety Profile: Lower incidence of severe immune-related adverse events compared to other PD-1 inhibitors.
-6. Future Directions and Challenges
-6.1 Ongoing Clinical Trials
-Expansion to Other Cancers: Breast, liver, and gastric cancers.
-Novel Combinations: Ivonescimab with other immunotherapies or targeted agents.
-6.2 Biomarker Development
-Predictive Biomarkers: PD-L1 expression, VEGF levels, and tumor microenvironment characteristics.
-Patient Stratification: Identifying subgroups most likely to benefit.
-6.3 Regulatory and Market Integration
-Global Approvals: Current status and potential expansion beyond China.
-Cost and Accessibility: Challenges in widespread adoption.
-7. Conclusion
-Summary of Key Findings: Ivonescimab represents a breakthrough in NSCLC treatment with dual-pathway inhibition.
-Clinical Implications: Potential to redefine first- and second-line therapy paradigms.
-Future Prospects: Continued research to optimize dosing, combinations, and patient selection."""
+    outline = """一个大纲"""
     asyncio.run(run_workflow(outline))
