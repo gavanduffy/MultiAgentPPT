@@ -74,6 +74,13 @@ def create_model(model:str, provider: str):
             # 表示兼容openai的模型请求
             model = "openai/" + model
         return LiteLlm(model=model, api_key=os.environ.get("ALI_API_KEY"), api_base="http://localhost:6688")
+    elif provider == "doubao":
+        # huggingface的模型需要使用LiteLlm
+        assert os.environ.get("DOUBAO_API_KEY"), "DOUBAO_API_KEY is not set"
+        if not model.startswith("openai/"):
+            # 表示兼容openai的模型请求
+            model = "openai/" + model
+        return LiteLlm(model=model, api_key=os.environ.get("DOUBAO_API_KEY"), api_base="https://ark.cn-beijing.volces.com/api/v3")
     elif provider == "local_openai":
         assert os.environ.get("OPENAI_API_KEY"), "OPENAI_API_KEY is not set"
         if not model.startswith("openai/"):

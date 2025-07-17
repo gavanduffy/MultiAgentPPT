@@ -72,3 +72,33 @@ src/components/presentation/editor/native-elements/root-image.tsx
     if (sectionNode.attributes && sectionNode.attributes.page_number) {
       return `page_number-${sectionNode.attributes.page_number}`;
     }
+
+## 图片加载失败后不显示，防止模型幻觉
+src/components/presentation/editor/native-elements/root-image.tsx
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
+
+  if (imageLoadFailed) {
+    return null;
+  }
+
+## 下载PPT按钮
+src/components/presentation/presentation-page/PresentationHeader.tsx
+Buttons目录下添加DownloadPPT.tsx
+src/components/presentation/presentation-page/buttons
+.env添加下载环境变量
+DOWNLOAD_SLIDES_URL="http://localhost:10021"
+后端API：src/app/api/presentation/download/route.ts
+功能：接收前端传来的items（即所有幻灯片内容），调用后端PPT生成服务（读取DOWNLOAD_SLIDES_URL环境变量），返回PPT下载链接。
+实现要点：
+POST请求，body为{ items }。
+读取process.env.DOWNLOAD_SLIDES_URL。
+调用后端服务，获取PPT下载链接，返回给前端。
+2. 前端按钮组件：src/components/presentation/presentation-page/buttons/DownloadPPT.tsx
+功能：点击后自动将当前所有items（通过usePresentationSlides获取）POST到API，收到下载链接后自动下载PPT。
+实现要点：
+使用Button组件，风格与ShareButton一致。
+使用lucide-react的Download图标。
+点击后禁用按钮并显示loading，防止重复点击。
+成功后自动触发浏览器下载。
+3. 在Header中集成
+功能：在PresentationHeader.tsx右侧按钮区，ShareButton旁边插入DownloadPPT按钮，仅在isPresentationPage且未在放映状态下显示。
