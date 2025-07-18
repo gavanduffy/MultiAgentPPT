@@ -60,6 +60,8 @@ export default function LayoutImageDrop({
           rootImage: {
             url: imageUrl,
             query: imageQuery,
+            background: false,
+            alt: ""
           },
           layoutType: layoutType,
         };

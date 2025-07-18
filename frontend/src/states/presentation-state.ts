@@ -15,6 +15,7 @@ interface PresentationState {
   language: string;
   pageStyle: string;
   showTemplates: boolean;
+  // 用户输入的标题
   presentationInput: string;
   imageModel: ImageModelList;
   presentationStyle: string;
@@ -78,6 +79,9 @@ interface PresentationState {
   detailLogs: { data: any, metadata: any }[];
   setDetailLogs: (logs: { data: any, metadata: any }[]) => void;
   appendDetailLog: (log: { data: any, metadata: any }) => void;
+  //引用文献
+  references: string[];
+  setReferences: (references: string[]) => void;
   
 }
 
@@ -108,6 +112,8 @@ export const usePresentationState = create<PresentationState>((set) => ({
   detailLogs: [],
   setDetailLogs: (logs) => set({ detailLogs: logs }),
   appendDetailLog: (log) => set((state) => ({ detailLogs: [...state.detailLogs, log] })),
+  references: [],
+  setReferences: (references) => set({ references }),
 
   // Generation states
   shouldStartOutlineGeneration: false,

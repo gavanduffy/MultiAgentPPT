@@ -102,11 +102,16 @@ class ADKAgentExecutor(AgentExecutor):
             if agent_author in self.show_agent:
                 logger.info(f"[adk executor] {agent_author}完成")
                 if event.content and event.content.parts:
+                    final_session = await self.runner.session_service.get_session(
+                        app_name=self.runner.app_name, user_id="self", session_id=session_id
+                    )
+                    print("最终的session中的结果final_session中的state: ", final_session.state)
+                    references = final_session.state.get("references", [])
                     # 最后一个agent的输出了，输出成status
                     await task_updater.update_status(
                         TaskState.working,
                         message=task_updater.new_agent_message(
-                            convert_genai_parts_to_a2a(event.content.parts), metadata={"author": agent_author, "show": True}
+                            convert_genai_parts_to_a2a(event.content.parts), metadata={"author": agent_author, "show": True, "references": references}
                         ),
                     )
                     print(f"final_session中的parts: {event.content.parts}")
@@ -124,13 +129,14 @@ class ADKAgentExecutor(AgentExecutor):
                 )
                 print("最终的session中的结果final_session中的state: ", final_session.state)
                 final_metadata = final_session.state.get("metadata")
+                references = final_session.state.get("references",[])
                 agent_author = event.author
                 if agent_author in agent_names:
                     logger.info(f"[adk executor] {agent_author}完成")
                     agent_names.remove(agent_author)
                 parts = convert_genai_parts_to_a2a(event.content.parts)
                 logger.info("返回最终的结果: %s", parts)
-                await task_updater.add_artifact(parts=parts,metadata={"author": agent_author})
+                await task_updater.add_artifact(parts=parts,metadata={"author": agent_author, "references": references})
                 if not agent_names:
                     # 说明任务整体完成了，没有要进行其它任务的Agent了，所有Agent都完成了自己的任务
                     await task_updater.complete()  # 这个会关掉event的Queue

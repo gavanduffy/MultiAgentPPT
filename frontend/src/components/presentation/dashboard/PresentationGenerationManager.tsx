@@ -219,12 +219,17 @@ export function PresentationGenerationManager() {
             if (!line.trim()) continue;
             try {
               const { type, data, metadata } = JSON.parse(line);
+              const author = metadata?.author ?? "AIAgent";
               if (type === "status-update") {
                 parser.parseChunk(data);
+                //这里获取metadata的references，然后存起来
+                if (metadata && Array.isArray(metadata.references)) {
+                  usePresentationState.getState().setReferences(metadata.references);
+                }
               } else {
                 setDetailLogs([
                   ...usePresentationState.getState().detailLogs,
-                  { data, metadata },
+                  { data, metadata: author },
                 ]);
               }
               //注意：⚠️在 setSlides 前强制生成新数组引用，如果同一个引用，它就不会触发 items.map(...) 渲染。
@@ -242,12 +247,16 @@ export function PresentationGenerationManager() {
       if (bufferedText.trim()) {
         try {
           const { type, data, metadata } = JSON.parse(bufferedText.trim());
+          const author = metadata?.author ?? "AIAgent";
           if (type === "status-update") {
             parser.parseChunk(data);
+            if (metadata && Array.isArray(metadata.references)) {
+              usePresentationState.getState().setReferences(metadata.references);
+            }
           } else {
             setDetailLogs([
               ...usePresentationState.getState().detailLogs,
-              { data, metadata },
+              { data, metadata: author },
             ]);
           }
         } catch (e) {

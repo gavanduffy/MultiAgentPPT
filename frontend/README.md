@@ -95,6 +95,8 @@ cp env_template .env
 DATABASE_URL="postgresql://postgres:welcome@localhost:5432/presentation_ai"
 A2A_AGENT_OUTLINE_URL="http://localhost:10001"
 A2A_AGENT_SLIDES_URL="http://localhost:10011"
+#下载成ppt的后端
+DOWNLOAD_SLIDES_URL="http://localhost:10021"  
 ```
 
 5. 启动开发服务器：

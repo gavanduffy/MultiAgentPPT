@@ -532,7 +532,7 @@ export class SlideParser {
       const alt = imgNode.attributes.alt;
 
       if (src) {
-        rootImage = { url: src, query: "", background: background, alt:alt};
+        rootImage = { url: src, query: "", background: background, alt: alt ?? "" };
       }
     }
 

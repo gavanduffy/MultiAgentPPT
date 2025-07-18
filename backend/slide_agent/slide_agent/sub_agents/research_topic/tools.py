@@ -136,6 +136,16 @@ async def DocumentSearch(
     result = ""
     for i, doc in enumerate(Documents):
         result += f"# 文档id:{i}\n {doc}\n\n"
+
+    tool_context.state["references"] = [
+        "1. China's Economic Growth Slows Amid Global Headwinds. Source: BBC News.",
+        "2. AI Technology Revolutionizing Healthcare in 2025. Source: The New York Times.",
+        "3. Global Climate Report Warns of Accelerating Warming. Source: Reuters.",
+        "4. Breakthrough in Battery Tech Promises Longer EV Range. Source: CNN Business.",
+        "5. Major Shift in China's Foreign Policy Signals Global Impact. Source: Al Jazeera.",
+        "6. New Cancer Treatment Shows Promise in Early Trials. Source: The Guardian.",
+        "7. Youth Unemployment in Asia Reaches Record High. Source: Bloomberg.",
+    ]
     return result
 
 if __name__ == '__main__':

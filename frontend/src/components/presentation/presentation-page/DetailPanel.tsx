@@ -88,6 +88,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({
       ) : (
         <>
           <span className="flex-1 text-gray-700">生成细节</span>
+          <span className="text-red-300">{isGeneratingPresentation ? '（生成中…）' : '（生成完成）'}</span>
           <button
             onClick={onExpand}
             className="ml-2 p-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center justify-center"

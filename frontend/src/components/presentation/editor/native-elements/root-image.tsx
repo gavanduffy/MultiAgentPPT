@@ -176,6 +176,12 @@ export default function RootImage({
     setIsSheetOpen(true);
   };
 
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
+
+  if (imageLoadFailed) {
+    return null;
+  }
+
   return (
     <>
       <div
@@ -231,6 +237,7 @@ export default function RootImage({
                           e,
                           imageUrl ?? image.url
                         );
+                        setImageLoadFailed(true);
                         // Optionally set a fallback image or show an error state
                       }}  
                     />
