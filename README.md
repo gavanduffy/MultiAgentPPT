@@ -212,3 +212,7 @@ MultiAgentPPT/
 
 ## 添加作者微信答疑解惑
 johnsongzc
+
+# Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=johnson7788/MultiAgentPPT&type=Date)](https://www.star-history.com/#johnson7788/MultiAgentPPT&Date)
