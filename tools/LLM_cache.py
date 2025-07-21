@@ -5,6 +5,10 @@
 # @Author: johnson
 # @Desc  : 大语言模型代理，缓存到本地文件
 """
+同样可以在.env中配置:HTTP_PROXY
+HTTP_PROXY=http://127.0.0.1:7890
+HTTPS_PROXY=http://127.0.0.1:7890
+
 curl -X POST http://localhost:6688/chat/completions \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer YOUR_AUTH_TOKEN" \
@@ -48,11 +52,11 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 class AppLogger:
     def __init__(self, log_file="llm.log"):
         self.log_file = log_file
-        with open(self.log_file, 'w') as f:
+        with open(self.log_file, 'w', encoding='utf-8') as f:
             f.write("")
 
     def log(self, message: str):
-        with open(self.log_file, 'a') as f:
+        with open(self.log_file, 'a', encoding='utf-8') as f:
             f.write(message + "\n")
         print(message)
 
@@ -67,7 +71,12 @@ provider2url = {
     "qwq-plus-latest": "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
     "gpt-4.1": "https://api.openai.com/v1/chat/completions",
     "gpt-4.1-nano-2025-04-14": "https://api.openai.com/v1/chat/completions",
-    "deepseek-chat": "https://api.deepseek.com/v1/chat/completions"
+    "deepseek-chat": "https://api.deepseek.com/v1/chat/completions",
+    "doubao-seed-1-6-flash-250615": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+    "doubao-seed-1-6-thinking-250715": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+    "doubao-seed-1-6-250615": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+    "deepseek-r1-250528": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+    "deepseek-v3-250324": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
 }
 
 
@@ -153,7 +162,7 @@ async def proxy_request(request: Request):
                 logger.log(f"尝试连接LLM服务器 (第 {attempt + 1} 次)")
 
                 # 增加超时时间和重试机制
-                timeout = httpx.Timeout(600.0, connect=10.0)
+                timeout = httpx.Timeout(600.0, connect=20.0)
 
                 async with httpx.AsyncClient(
                         timeout=timeout,
