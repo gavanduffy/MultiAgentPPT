@@ -23,7 +23,7 @@
 编辑模型配置文件以自定义每个 Agent 所调用的模型（如 GPT-4、Claude、Gemini 等）：
 
 ```python
-# 配置路径
+# 配置模型的路径
 backend/slide_agent/slide_agent/config.py
 ```
 
