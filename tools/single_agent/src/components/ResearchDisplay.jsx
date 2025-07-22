@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-//显示每个数据库的搜索结果的组件
+// Component to display search results for each database
 
 const ResearchDisplay = ({ data }) => {
-  console.log("要显示的搜索数据:", data)
+  console.log("Search data to display:", data);
   const [activeTab, setActiveTab] = useState(0); // State to manage the active tab
 
 
