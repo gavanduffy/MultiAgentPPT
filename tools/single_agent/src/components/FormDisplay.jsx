@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-//当用户提交的是表单数据时，组件会显示
+// Component to display when the user submits form data
 function FormComponent({ formData, onSubmit, messageId }) {
     const [formValues, setFormValues] = useState(formData.form_data || {});
     const [errors, setErrors] = useState({});
