@@ -4,7 +4,7 @@
 # @File  : weixin_search.py.py
 # @Author: johnson
 # @Contact : github: johnson7788
-# @Desc  : 使用搜索搜索微信公众号文章，先关机关键词搜索搜狗，获取链接，然后使用get_real_url获取真实链接，最后使用真实链接获取公众号内容。
+# @Desc  : Uses search to find WeChat official account articles, first searches Sogou with keywords to get links, then uses get_real_url to get the real link, and finally uses the real link to get the official account content.
 import json
 import asyncio
 from typing import Any, Dict, List, Optional
@@ -14,7 +14,7 @@ from urllib.parse import quote
 import time
 
 def sogou_weixin_search(query: str) -> List[Dict[str, str]]:
-    """在搜狗微信搜索中搜索指定关键词并返回结果列表"""
+    """Search for specified keywords in Sogou WeChat search and return a list of results"""
     headers = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
@@ -64,7 +64,7 @@ def sogou_weixin_search(query: str) -> List[Dict[str, str]]:
 
 
 def get_real_url(sogou_url: str) -> str:
-    """从搜狗微信链接获取真实的微信公众号文章链接"""
+    """Get the real WeChat official account article link from a Sogou WeChat link"""
     headers = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
@@ -97,7 +97,7 @@ def get_real_url(sogou_url: str) -> str:
 
 
 def get_article_content(real_url: str, referer: str) -> str:
-    """获取微信公众号文章的正文内容"""
+    """Get the main content of a WeChat official account article"""
     headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
@@ -124,23 +124,23 @@ def get_article_content(real_url: str, referer: str) -> str:
         main_content = '\n'.join(cleaned_content)
         return main_content
     except Exception as e:
-        return f"获取文章内容失败: {str(e)}"
+        return f"Failed to get article content: {str(e)}"
 
 def get_wechat_article(query: str, number=10):
     """
-    获取前10篇文章
+    Get the top 10 articles
     """
     start_time = time.time()
     results = sogou_weixin_search(query)
     if not results:
-        return f"没有搜索到{query}相关的文章"
+        return f"No articles related to {query} found."
     articles = []
     results = results[:number]
     for every_result in results:
-        sougou_link = every_result["link"]
-        real_url = get_real_url(sougou_link)
-        # referer：请求来源
-        content = get_article_content(real_url, referer=sougou_link)
+        sogou_link = every_result["link"]
+        real_url = get_real_url(sogou_link)
+        # referer: request source
+        content = get_article_content(real_url, referer=sogou_link)
         article = {
             "title": every_result["title"],
             "publish_time": every_result["publish_time"],
@@ -149,7 +149,7 @@ def get_wechat_article(query: str, number=10):
         }
         articles.append(article)
     end_time = time.time()
-    print(f"关键词{query}相关的文章已经获取完毕，获取到{len(articles)}篇, 耗时{end_time - start_time}秒")
+    print(f"Articles related to keyword '{query}' have been retrieved. {len(articles)} articles found, taking {end_time - start_time:.2f} seconds.")
     return articles
 
 if __name__ == '__main__':
