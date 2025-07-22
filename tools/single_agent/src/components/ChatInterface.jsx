@@ -14,27 +14,27 @@ function ChatInterface({ agentCard }) {
   const currentStreamingMessageIdRef = useRef(null);
   const abortStreamingRef = useRef(null);
   const [sessionId, setSessionId] = useState('');
-  //思考的数据
+  // Thinking data
   const [thinkingMessages, setThinkingMessages] = useState({});
-  // 状态的数据
+  // Status data
   const [statusMessages, setStatusMessages] = useState({});
   const [isThinkingCollapsed, setIsThinkingCollapsed] = useState({});
   const [researchResults, setResearchResults] = useState({});
-  //根据researchResults的变化更新referenceMap
+  // Update referenceMap based on changes in researchResults
   const [referenceMap, setReferenceMap] = useState({});
 
   useEffect(() => {
-    // 检查 researchResults 是否有效并包含 data
+    // Check if researchResults is valid and contains data
     if (researchResults && Object.keys(researchResults).length > 0) {
       const newMap = {};
 
       Object.values(researchResults).forEach((results) => {
-        // 遍历 results 数组中的每个 result
+        // Iterate through each result in the results array
         results.forEach((result) => {
           if (result.data && Array.isArray(result.data.data)) {
             result.data.data.forEach((item) => {
               item.match_sentences.forEach((sentence_info) => {
-                sentence_info["title"] = item.title; // 添加标题信息
+                sentence_info["title"] = item.title; // Add title information
                 newMap[sentence_info.id] = sentence_info;
               });
             });
@@ -96,7 +96,7 @@ function ChatInterface({ agentCard }) {
         contextId: sessionId,
       },
       (streamEvent) => {
-        console.log('接收到流事件：', streamEvent);
+        console.log('Received stream event:', streamEvent);
 
         if (streamEvent.result?.status?.state === 'working' && streamEvent.result?.status?.message) {
           streamEvent.result.status.message.parts.forEach((part) => {
@@ -170,12 +170,12 @@ function ChatInterface({ agentCard }) {
         }
       },
       (streamError) => {
-        console.error('流式传输错误：', streamError);
-        setError(`流式传输错误：${streamError.message}`);
+        console.error('Streaming error:', streamError);
+        setError(`Streaming error: ${streamError.message}`);
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === agentMessage.id
-              ? { ...msg, text: `错误：${streamError.message}`, isStreaming: false }
+              ? { ...msg, text: `Error: ${streamError.message}`, isStreaming: false }
               : msg
           )
         );
@@ -201,7 +201,7 @@ function ChatInterface({ agentCard }) {
   if (!agentCard) {
     return (
       <div className="p-6 text-center text-gray-500 text-lg font-medium bg-white rounded-xl shadow-lg">
-        请先选择一个智能体以开始聊天。
+        Please select an agent to start chatting.
       </div>
     );
   }
@@ -209,7 +209,7 @@ function ChatInterface({ agentCard }) {
   if (!sessionId) {
     return (
       <div className="p-6 text-center text-gray-500 text-lg font-medium bg-white rounded-xl shadow-lg">
-        正在生成会话 ID...
+        Generating session ID...
       </div>
     );
   }
@@ -315,7 +315,7 @@ function ChatInterface({ agentCard }) {
                   )}
                 </div>
               )}
-              {/* 显示每个数据库的搜索结果的组件 */}
+              {/* Component to display search results for each database */}
               {msg.type === 'agent' && !msg.isStreaming && researchResults[msg.id] && researchResults[msg.id].length > 0 && (
                 <div className="mt-4">
                   <ResearchDisplay data={researchResults[msg.id]} />
