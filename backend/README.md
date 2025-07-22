@@ -1,232 +1,138 @@
-# 1.PPT相关的子Agent
-
-## 后端的依赖
+1. PPT-related Sub-Agents
+Backend Dependencies
 pip install -r requirements.txt
-
-## 目录结构
-simpleOutline   # 用于前端测试的大纲生成
-simplePPT     # 用于前端测试的简单PPT生成
-slide_outline   # 用于前端的大纲生成，经过检索生成大纲，更专业
-slide_agent   #标准多智能体系统，根据大纲生成ppt，更专业
-save_ppt      #保存成ppt文件，这里会使用python-pptx把通过ppt母版保存成pptx文件
-
-## gemini目前最适配(第一次一定要用gemini试验，其它还有bug），其它的LLM的支持,可以修改create_model.py, 然后在你的.env文件中，对MODEL_PROVIDER和LLM_MODEL这2个环境变量进行配置
-* 文件: slide_agent/slide_agent/create_model.py
-* 文件: simpleOutline/create_model.py
-* 文件: simplePPT/create_model.py
-* 文件: hostAgentAPI/hosts/multiagent/create_model.py
-
-## 开发中（待完善)
-super_agent   # 文字版本的多智能体系统，用于串联多个Agent，纯文本的输入，输出，控制大纲和PPT生成
-
-## 多Agent开发时注意事项：
-每个子Agent的描述必须清晰，因为Super Agent根据每个子Agent任务确定它的输入信息。
-
-# 2.自行开发多Agent项目(下面是详细的介绍，和本PPT项目无关)
-hostAgentAPI  # 纯A2A的API的版本的总Agent，用于串联多个Agent
-multiagent_front # super Agent的前端代码
-slide_outline # 结合MCP工具调用实现的子Agent客户端
-simplePPT #adk实现的子agent客户端
-
-
-# A2A、ADK 与 MCP：构建多 Agent 层级调用系统
-
-本文基于 **MultiAgentPPT** 项目，深入探讨如何利用最新版 **A2A (Agent-to-Agent)** 框架，融合 **Google ADK** 和 **FastMCP**，构建一个高效的多 Agent 层级调用系统。通过 **multiagent\_front** 前端界面，用户能够便捷地注册子 Agent、发起任务并跟踪会话，而 **Host Agent** 则负责协调子 Agent 完成任务分发与执行。我们将以 **PPT 大纲和内容生成**为例，展示 A2A 的层级调用机制、ADK 的任务增强能力和 FastMCP 的流式输出支持，重点突出系统的架构设计与实现细节。
-
------
-
-## 一、A2A 多 Agent 层级调用架构
-
-A2A 框架的核心在于通过 Host Agent 实现多 Agent 的层级调用与管理。Host Agent 作为中央协调者，负责子 Agent 的注册、任务分配、上下文管理和结果整合。结合 Google ADK 和 MCP，系统实现了以下关键功能：
-
-  * **子 Agent 注册与管理**：Host Agent 通过 `/agent/register` 和 `/agent/list` 接口维护子 Agent 列表，每个子 Agent 的功能描述（例如：生成 PPT 大纲或内容）被明确定义，确保任务精准分配。
-  * **层级任务分配**：Host Agent 解析用户请求，动态分配任务给合适的子 Agent（例如：`slide_outline` 或 `slide_agent`），支持串行或并行执行。
-  * **上下文管理**：通过 `/conversation/create` 和 `/message/send` 接口，Host Agent 维护会话状态，确保任务连续性。
-  * **流式响应与事件跟踪**：结合 FastMCP 的 SSE (Server-Sent Events) 支持，系统能够实时返回任务状态和结果，并通过 `/events/get` 和 `/events/query` 跟踪事件。
-  * **ADK 集成**：Google ADK 增强了子 Agent 处理复杂任务的能力，例如通过 GenAI API 生成结构化内容。
-
-### 项目中的层级调用流程
-
-以 PPT 生成为例，其流程如下：
-
-1.  用户通过 **multiagent\_front** 前端输入任务（例如：“调研电动汽车发展”）。
-2.  Host Agent 创建会话，并分配任务给 `slide_outline` 子 Agent 生成大纲。
-3.  用户确认大纲后，Host Agent 调用 `slide_agent` 子 Agent 生成 PPT 内容。
-4.  子 Agent 通过 ADK 调用 GenAI API 处理任务，FastMCP 提供 SSE 流式返回结果。
-
------
-
-
-## 二、环境搭建
-
-### 1\. 后端环境
-
-按照 **HostAgentAPI** 的 README 进行配置：
-
-  * **安装依赖**：
-    确保 Python 3 已安装，运行：
-
-    在终端中执行 `pip install -r requirements.txt`。
-
-  * **配置模型**：
-    复制 `env_template.txt` 为 `.env`，并配置模型 `provider`（例如 Google、OpenAI）。示例：
-
-    在 `.env` 文件中配置 `MODEL_PROVIDER=google` 和 `GOOGLE_API_KEY=your_api_key_here`。
-    参考 `hostAgentAPI/hosts/multiagent/create_model.py` 设置支持的模型。
-
-  * **启动 Host Agent API**：
-    运行：
-
-    在终端中执行 `python host_agent_api.py`。
-    API 默认运行在 `http://localhost:13000`。
-
-### 2\. 前端环境
-
-按照 **A2A 多 Agent 对话前端** 的 README 配置 **multiagent\_front**：
-
-  * **安装依赖**：
-    确保安装 Node.js 和 npm，运行：
-
-    在 `multiagent_front` 目录下执行 `npm install`。
-
-  * **配置环境变量**：
-    检查 `.env` 文件，确认 `REACT_APP_HOSTAGENT_API` 指向 API 地址：
-
-    在 `multiagent_front/.env` 文件中确认 `REACT_APP_HOSTAGENT_API=http://127.0.0.1:13000`。
-
-  * **启动前端**：
-    运行：
-
-    在 `multiagent_front` 目录下执行 `npm run dev`。
-    前端默认在 `http://localhost:5173` 运行。
-
-### 3\. 运行子 Agent 生成大纲
-
-进入 `slide_outline` 目录：
-
-在终端中执行 `cd slide_outline`。
-
-  * **MCP 配置**：
-    检查 `mcp_config.json`：
-
-    在终端中执行 `cat mcp_config.json`。
-    在 `.env` 中添加 Google GenAI API 密钥：
-
-    在 `slide_outline/.env` 文件中添加 `GOOGLE_GENAI_API_KEY=your_genai_api_key`。
-
-  * **启动 SSE 模式的 MCP 服务**：
-
-    在 `slide_outline` 目录下执行 `fastmcp run --transport sse mcpserver/rag_tool.py`。
-
-  * **启动主服务**：
-
-    在 `slide_outline` 目录下执行 `python main_api.py`。
-    子 Agent 的监听地址为 `http://localhost:10001`。
-
-### 4\. 运行第二个子 Agent 根据大纲生成内容
-
-进入 `simplePPT` 目录：
-
-在终端中执行 `cd simplePPT`。
-复制环境变量文件：
-在终端中执行 `cp env_template .env`。
-
-  * **启动主服务**：
-
-    在 `simplePPT` 目录下执行 `python main_api.py`。
-    子 Agent 的监听地址为 `http://localhost:10011`。
-
------
-
-## 三、通过前端实现 A2A 层级调用
-
-**multiagent\_front** 前端提供了直观的界面，简化了 Agent 注册、任务发起和结果跟踪。以下是操作流程：
-
-### 1\. 注册子 Agent
-
-1.  打开前端界面 (`http://localhost:5173`)。
-
-2.  进入 **Agent 注册** 页面（通常在顶部或侧边栏）。
-
-3.  添加子 Agent 地址：
-
-      * `http://localhost:10001`
-      * `http://localhost:10011`
-
-4.  提交后，Host Agent 会通过 `/agent/register` 记录子 Agent，界面将显示注册成功。
-
-5.  在 **Agent 列表** 页面（调用 `/agent/list`）确认子 Agent 列表。
-
-![Agent 列表](doc/agents_list.png "Agent 列表")
-
-### 2\. 发起任务
-
-1.  在 **对话** 或 **新建会话** 页面，点击“创建会话”。
-
-2.  输入任务，例如：“调研电动汽车发展”。
-
-3.  前端会调用 `/conversation/create` 获取 `conversation_id`，然后通过 `/message/send` 发送请求。
-
-![发起任务生成大纲](doc/generate_outline.png "发起任务生成大纲")
-
-### 3\. Host Agent 层级调用原理
-
-  * **任务解析**：Host Agent 使用 `list_remote_agents` 工具查询可用子 Agent。
-
-  * **任务分配**：根据请求内容，Host Agent 分配任务给 `slide_outline` 子 Agent 生成大纲。
-
-  * **ADK 增强**：`slide_outline` 通过 `adk_agent_executor.py` 调用 Google GenAI API，生成结构化大纲。
-
-  * **FastMCP 流式输出**：FastMCP 通过 SSE 实时返回大纲，状态更新（例如：“submitted” → “working” → “completed”）会显示在前端。
-
-![生成 PPT 内容](doc/generate_ppt.png "生成 PPT 内容")
-
-### 4\. 查看中间结果
-
-前端会实时显示大纲。在 **会话列表** 页面查看所有会话（`/conversation/list`）。点击会话，可以查看消息历史（`/message/list`）和事件记录（`/events/query`），如任务状态更新或产物生成。
-
-![会话记录](doc/conversation_record.png "会话记录")
-
------
-
-
-## 四、A2A 结合 ADK 和 FastMCP 的技术亮点
-
-### 1\. A2A 层级调用
-
-  * **动态任务分配**：Host Agent 根据子 Agent 描述动态选择执行者，支持复杂任务分解。
-  * **工具支持**：Host Agent 内置 `list_remote_agents` 和 `send_message` 工具，简化任务分发。
-  * **事件驱动**：通过 `add_event` 记录用户消息、Agent 状态更新和产物生成，确保全流程可追溯。
-
-### 2\. Google ADK 集成
-
-  * **增强子 Agent 能力**：`adk_agent_executor.py` 集成 Google GenAI API，处理复杂任务如结构化内容生成。
-  * **模块化设计**：ADK 逻辑与 A2A 分离，子 Agent 可独立扩展。
-
-### 3\. A2A 的 SSE
-
-  * **流式输出**：A2A 通过 SSE 实时推送任务状态和结果，提供更流畅的用户体验。
-
-### 4\. 原理图
-```mermaid
+Directory Structure
+simpleOutline # For front-end testing of outline generation
+simplePPT     # For front-end testing of simple PPT generation
+slide_outline # For front-end outline generation, generates outlines through retrieval, more professional
+slide_agent   # Standard multi-agent system, generates PPTs based on outlines, more professional
+save_ppt      # Saves as a PPT file, uses python-pptx to save as a .pptx file from a PPT master
+Gemini is currently the most compatible (must try Gemini first, others still have bugs), for support of other LLMs, you can modify create_model.py and then configure the MODEL_PROVIDER and LLM_MODEL environment variables in your .env file.
+ * File: slide_agent/slide_agent/create_model.py
+ * File: simpleOutline/create_model.py
+ * File: simplePPT/create_model.py
+ * File: hostAgentAPI/hosts/multiagent/create_model.py
+Under Development (To Be Improved)
+super_agent   # Text-based multi-agent system, used to connect multiple Agents, pure text input, output, controls outline and PPT generation
+Notes for Multi-Agent Development:
+The description of each sub-agent must be clear, as the Super Agent determines its input information based on each sub-agent's task.
+2. Developing Your Own Multi-Agent Project (Detailed introduction below, unrelated to this PPT project)
+hostAgentAPI  # The main Agent for a pure A2A API version, used to connect multiple Agents
+multiagent_front # Front-end code for the Super Agent
+slide_outline # Sub-agent client implemented with MCP tool calls
+simplePPT # Sub-agent client implemented with ADK
+A2A, ADK, and MCP: Building a Multi-Agent Hierarchical Calling System
+This document, based on the MultiAgentPPT project, delves into how to leverage the latest version of the A2A (Agent-to-Agent) framework, integrating Google ADK and FastMCP, to build an efficient multi-agent hierarchical calling system. Through the multiagent_front front-end interface, users can easily register sub-agents, initiate tasks, and track conversations, while the Host Agent is responsible for coordinating sub-agents to distribute and execute tasks. We will use PPT outline and content generation as an example to demonstrate A2A's hierarchical calling mechanism, ADK's task enhancement capabilities, and FastMCP's streaming output support, with a focus on system architecture design and implementation details.
+I. A2A Multi-Agent Hierarchical Calling Architecture
+The core of the A2A framework lies in the Host Agent's ability to implement hierarchical calls and management of multiple agents. The Host Agent acts as a central coordinator, responsible for sub-agent registration, task assignment, context management, and result integration. By combining Google ADK and MCP, the system achieves the following key functionalities:
+ * Sub-Agent Registration and Management: The Host Agent maintains a list of sub-agents through the /agent/register and /agent/list interfaces. The functional description of each sub-agent (e.g., generating PPT outlines or content) is clearly defined to ensure accurate task assignment.
+ * Hierarchical Task Assignment: The Host Agent parses user requests and dynamically assigns tasks to appropriate sub-agents (e.g., slide_outline or slide_agent), supporting serial or parallel execution.
+ * Context Management: Through the /conversation/create and /message/send interfaces, the Host Agent maintains conversation states, ensuring task continuity.
+ * Streaming Response and Event Tracking: Combined with FastMCP's SSE (Server-Sent Events) support, the system can return real-time task status and results, and track events through /events/get and /events/query.
+ * ADK Integration: Google ADK enhances the sub-agents' ability to handle complex tasks, such as generating structured content via the GenAI API.
+Hierarchical Calling Process in the Project
+Taking PPT generation as an example, the process is as follows:
+ * The user inputs a task (e.g., "Research on the development of electric vehicles") via the multiagent_front front-end.
+ * The Host Agent creates a conversation and assigns the task to the slide_outline sub-agent to generate an outline.
+ * After the user confirms the outline, the Host Agent calls the slide_agent sub-agent to generate the PPT content.
+ * The sub-agent processes the task by calling the GenAI API via ADK, and FastMCP provides streaming results via SSE.
+II. Environment Setup
+1. Backend Environment
+Configure according to the HostAgentAPI README:
+ * Install Dependencies:
+   Ensure Python 3 is installed, then run:
+   Execute pip install -r requirements.txt in the terminal.
+ * Configure Model:
+   Copy env_template.txt to .env and configure the model provider (e.g., Google, OpenAI). Example:
+   In the .env file, configure MODEL_PROVIDER=google and GOOGLE_API_KEY=your_api_key_here.
+   Refer to hostAgentAPI/hosts/multiagent/create_model.py to set up supported models.
+ * Start Host Agent API:
+   Run:
+   Execute python host_agent_api.py in the terminal.
+   The API runs by default on http://localhost:13000.
+2. Frontend Environment
+Configure multiagent_front according to the A2A Multi-Agent Chat Frontend README:
+ * Install Dependencies:
+   Ensure Node.js and npm are installed, then run:
+   Execute npm install in the multiagent_front directory.
+ * Configure Environment Variables:
+   Check the .env file to confirm that REACT_APP_HOSTAGENT_API points to the API address:
+   In the multiagent_front/.env file, confirm REACT_APP_HOSTAGENT_API=http://127.0.0.1:13000.
+ * Start Frontend:
+   Run:
+   Execute npm run dev in the multiagent_front directory.
+   The frontend runs by default on http://localhost:5173.
+3. Run Sub-Agent to Generate Outline
+Navigate to the slide_outline directory:
+Execute cd slide_outline in the terminal.
+ * MCP Configuration:
+   Check mcp_config.json:
+   Execute cat mcp_config.json in the terminal.
+   Add Google GenAI API key to .env:
+   Add GOOGLE_GENAI_API_KEY=your_genai_api_key to the slide_outline/.env file.
+ * Start MCP Service in SSE Mode:
+   Execute fastmcp run --transport sse mcpserver/rag_tool.py in the slide_outline directory.
+ * Start Main Service:
+   Execute python main_api.py in the slide_outline directory.
+   The sub-agent's listening address is http://localhost:10001.
+4. Run Second Sub-Agent to Generate Content Based on Outline
+Navigate to the simplePPT directory:
+Execute cd simplePPT in the terminal.
+Copy environment file:
+Execute cp env_template .env in the terminal.
+ * Start Main Service:
+   Execute python main_api.py in the simplePPT directory.
+   The sub-agent's listening address is http://localhost:10011.
+III. Implementing A2A Hierarchical Calls via Frontend
+The multiagent_front frontend provides an intuitive interface, simplifying agent registration, task initiation, and result tracking. The operating procedure is as follows:
+1. Register Sub-Agents
+ * Open the frontend interface (http://localhost:5173).
+ * Go to the Agent Registration page (usually in the top or sidebar).
+ * Add sub-agent addresses:
+   * http://localhost:10001
+   * http://localhost:10011
+ * After submission, the Host Agent will record the sub-agents via /agent/register, and the interface will display successful registration.
+ * Confirm the sub-agent list on the Agent List page (calling /agent/list).
+2. Initiate Task
+ * On the Conversation or New Session page, click "Create Session".
+ * Enter the task, for example: "Research on the development of electric vehicles".
+ * The frontend will call /conversation/create to get the conversation_id, then send the request via /message/send.
+3. Host Agent Hierarchical Calling Principle
+ * Task Parsing: The Host Agent uses the list_remote_agents tool to query available sub-agents.
+ * Task Assignment: Based on the request content, the Host Agent assigns the task to the slide_outline sub-agent to generate an outline.
+ * ADK Enhancement: slide_outline calls the Google GenAI API via adk_agent_executor.py to generate a structured outline.
+ * FastMCP Streaming Output: FastMCP returns the outline in real-time via SSE, and status updates (e.g., "submitted" → "working" → "completed") will be displayed on the frontend.
+4. View Intermediate Results
+The frontend will display the outline in real-time. On the Conversation List page, you can view all conversations (/conversation/list). Clicking on a conversation allows you to view message history (/message/list) and event records (/events/query), such as task status updates or artifact generation.
+IV. Technical Highlights of A2A Combined with ADK and FastMCP
+1. A2A Hierarchical Calling
+ * Dynamic Task Assignment: The Host Agent dynamically selects executors based on sub-agent descriptions, supporting complex task decomposition.
+ * Tool Support: The Host Agent has built-in list_remote_agents and send_message tools, simplifying task distribution.
+ * Event-Driven: By using add_event, user messages, agent status updates, and artifact generation are recorded, ensuring full traceability.
+2. Google ADK Integration
+ * Enhanced Sub-Agent Capabilities: adk_agent_executor.py integrates the Google GenAI API to handle complex tasks such as structured content generation.
+ * Modular Design: ADK logic is separated from A2A, allowing sub-agents to be independently extended.
+3. A2A's SSE
+ * Streaming Output: A2A pushes task status and results in real-time via SSE, providing a smoother user experience.
+4. Schematic Diagram
 graph TD
-    %% 定义节点
-    A[用户] -->|发起任务| B(multiagent_front 前端)
-    B -->|调用 API| C(Host Agent)
+    %% Define Nodes
+    A[User] -->|Initiate Task| B(multiagent_front Frontend)
+    B -->|Call API| C(Host Agent)
     
-    %% Host Agent 与子 Agent 交互
-    C -->|根据问题分配任务| F[slide_outline 子 Agent]
-    C -->|根据问题分配任务| G[simplePPT 子 Agent]
+    %% Host Agent and Sub-Agent Interaction
+    C -->|Assign Task based on Query| F[slide_outline Sub-Agent]
+    C -->|Assign Task based on Query| G[simplePPT Sub-Agent]
     
-    %% 子 Agent 与外部服务
-    F -->|调用adk多agent| I[ADK多Agent流程]
-    G -->|MCP协议| H[MCP工具]
+    %% Sub-Agent and External Services
+    F -->|Call ADK Multi-Agent| I[ADK Multi-Agent Process]
+    G -->|MCP Protocol| H[MCP Tool]
     
-    %% 前端显示
-    B -->|显示数据流| A
+    %% Frontend Display
+    B -->|Display Data Stream| A
     
     
-    %% 样式定义
+    %% Style Definition
     classDef host fill:#f9f,stroke:#333,stroke-width:2px;
     classDef agent fill:#bbf,stroke:#333,stroke-width:2px;
     classDef frontend fill:#dfd,stroke:#333,stroke-width:2px;
@@ -236,32 +142,30 @@ graph TD
     class F,G agent;
     class B frontend;
     class I,H external;
-```
 
-生产环境更复杂示例
-```mermaid
+More complex example for production environment
 flowchart TD
-    A[用户请求] --> C[Host Agent<br/>控制子Agent]
+    A[User Request] --> C[Host Agent<br/>Control Sub-Agents]
     C --> D[Document Agent<br/>A2A Server]
     C --> P[PPT Agent<br/>A2A Server]
     C --> Q[Excel Agent<br/>A2A Server]
-    D --> E[Writer Agent<br/>ADK结构 Sequential]
-    E --> F[Translate<br/>翻译处理]
-    F --> G[Outline Generate<br/>生成大纲]
-    G --> H[(RAG Search DB<br/>知识库检索)]
+    D --> E[Writer Agent<br/>ADK Structure Sequential]
+    E --> F[Translate<br/>Translation Processing]
+    F --> G[Outline Generate<br/>Generate Outline]
+    G --> H[(RAG Search DB<br/>Knowledge Base Retrieval)]
     H --> G
-    G --> I[Split Outline<br/>大纲拆分]
-    I --> J[Parallel Agent<br/>并行处理]
+    G --> I[Split Outline<br/>Outline Splitting]
+    I --> J[Parallel Agent<br/>Parallel Processing]
     J --> K1[Research Agent 1]
     J --> K2[Research Agent 2]
     J --> K3[Research Agent n]
-    K1 --> L[Summary Agent<br/>摘要整合]
+    K1 --> L[Summary Agent<br/>Summary Integration]
     K2 --> L
     K3 --> L
-    L --> M[Refine Agent<br/>内容精炼]
-    M --> N[(Web Search<br/>网络搜索)]
+    L --> M[Refine Agent<br/>Content Refinement]
+    M --> N[(Web Search<br/>Web Search)]
     N --> M
-    M --> O[Output<br/>最终输出]
+    M --> O[Output<br/>Final Output]
 
     classDef userInput fill:#e1f5fe
     classDef messageQueue fill:#f3e5f5
@@ -288,41 +192,19 @@ flowchart TD
     class M refineNode
     class H,N database
     class O output
-```
 
------
-
-## 五、测试与调试
-
-### 1\. 单元测试 HostAgentAPI
-
-运行 `test_api.py` 验证 API 接口：
-
-在终端中执行 `python test_api.py`。
-
-检查状态码、响应内容和耗时。
-
-### 2\. 整体测试
-
-使用 `host_agent_api_client.py` 模拟前端操作：
-
-在终端中执行 `python host_agent_api_client.py`。
-
-### 3\. 常见问题
-
-  * **PyCharm 异常**：如遇 `AttributeError: 'NoneType' object has no attribute 'call_exception_handler'`，请尝试使用命令行运行 `python host_agent_api.py`。
-
------
-
-## 六、注意事项
-
-  * **子 Agent 描述清晰**：注册时需明确功能（例如：“Generates structured PPT outlines”），以确保 Host Agent 正确分配任务。
-  * **会话管理**：建议为每个任务创建独立的会话，并使用前端的会话列表跟踪任务进度。
-
------
-
-## 七、总结
-
-通过 A2A 框架结合 Google ADK 和 FastMCP，**MultiAgentPPT** 项目展示了一个高效的多 Agent 层级调用系统。Host Agent 协调子 Agent（例如 `slide_outline` 和 `simplePPT`），实现了任务从输入到输出的自动化处理。**multiagent\_front** 前端提供了直观的交互界面，支持 Agent 注册、任务发起和结果跟踪，显著提升了系统的灵活性和用户体验。这个架构不仅适用于 PPT 生成，还可扩展到其他多 Agent 协作场景，展现了 A2A 框架的强大潜力。
-
------
+V. Testing and Debugging
+1. Unit Testing HostAgentAPI
+Run test_api.py to verify API interfaces:
+Execute python test_api.py in the terminal.
+Check status codes, response content, and elapsed time.
+2. Overall Testing
+Use host_agent_api_client.py to simulate front-end operations:
+Execute python host_agent_api_client.py in the terminal.
+3. Common Issues
+ * PyCharm Exception: If you encounter AttributeError: 'NoneType' object has no attribute 'call_exception_handler', try running python host_agent_api.py from the command line.
+VI. Important Notes
+ * Clear Sub-Agent Descriptions: During registration, functionality must be clearly defined (e.g., "Generates structured PPT outlines") to ensure the Host Agent correctly assigns tasks.
+ * Conversation Management: It is recommended to create independent conversations for each task and use the frontend's conversation list to track task progress.
+VII. Summary
+Through the A2A framework combined with Google ADK and FastMCP, the MultiAgentPPT project demonstrates an efficient multi-agent hierarchical calling system. The Host Agent coordinates sub-agents (such as slide_outline and simplePPT), automating task processing from input to output. The multiagent_front frontend provides an intuitive interaction interface, supporting agent registration, task initiation, and result tracking, significantly enhancing system flexibility and user experience. This architecture is not only suitable for PPT generation but can also be extended to other multi-agent collaboration scenarios, showcasing the powerful potential of the A2A framework.
